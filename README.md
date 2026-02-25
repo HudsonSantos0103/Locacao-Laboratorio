@@ -6,6 +6,9 @@
 
 O **Sistema de Gestão Escolar Integrado** é uma aplicação web completa voltada para a organização de recursos e pessoal em instituições de ensino. O projeto centraliza o agendamento de laboratórios técnicos e a gestão de escalas de monitoria em uma interface intuitiva e responsiva.
 
+Link: 
+
+https://hudsonsantos0103.github.io/Locacao-Laboratorio/
 
 
 ## 🚀 Funcionalidades
