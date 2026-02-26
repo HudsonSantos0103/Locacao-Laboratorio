@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEEP Comendador Miguel Gurgel | Sistema de Gestão Escolar</title>
+    <title>EEEP Miguel Gurgel | Gestão Escolar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="estilos/style.css">
 </head>
 <body>
@@ -15,9 +15,8 @@
     <div id="auth-screen">
         <div class="auth-container">
             <div id="login-form">
-                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
-                <div class="school-logo-text" style="display: none;">EEEP Comendador Miguel Gurgel</div>
-                <h2 style="margin-bottom:24px;">Acesso ao Sistema</h2>
+                <img src="imagens/logo-horizontal.png" alt="Logo" class="school-logo-img" onerror="this.style.display='none'">
+                <h2>Acesso ao Sistema</h2>
                 <div class="input-group">
                     <input type="text" id="login-email" placeholder="E-mail ou Matrícula">
                 </div>
@@ -30,48 +29,35 @@
             </div>
 
             <div id="signup-form" style="display: none;">
-                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
-                <div class="school-logo-text" style="display: none;">Cadastro</div>
-                <div class="input-group">
-                    <input type="text" id="reg-nome" placeholder="Nome Completo">
-                </div>
-                <div class="input-group">
-                    <input type="text" id="reg-matricula" placeholder="Número da Matrícula">
-                </div>
+                <h2>Cadastro</h2>
+                <div class="input-group"><input type="text" id="reg-nome" placeholder="Nome Completo"></div>
+                <div class="input-group"><input type="text" id="reg-matricula" placeholder="Matrícula"></div>
                 <div class="input-group">
                     <select id="reg-cargo">
                         <option value="Professor">Professor(a)</option>
                         <option value="Coordenador">Coordenador(a)</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <input type="email" id="reg-email" placeholder="E-mail Institucional">
-                </div>
+                <div class="input-group"><input type="email" id="reg-email" placeholder="E-mail Institucional"></div>
                 <div class="input-group">
                     <input type="password" id="reg-pass" placeholder="Senha (mín. 6 dígitos)" oninput="checkPasswordStrength(this.value)">
                     <span class="password-toggle" onclick="togglePassword('reg-pass')">👁️</span>
                 </div>
-                <div class="password-strength">
-                    <div id="strength-bar" class="strength-bar"></div>
-                </div>
+                <div class="password-strength"><div id="strength-bar" class="strength-bar"></div></div>
                 <button class="btn-auth" onclick="handleSignup()" style="margin-top:16px;">Finalizar Cadastro</button>
-                <p class="auth-link">Já tem conta? <a href="#" onclick="toggleAuth('login')">Fazer Login</a></p>
+                <p class="auth-link">Já tem conta? <a href="#" onclick="toggleAuth('login')">Login</a></p>
             </div>
         </div>
     </div>
 
     <header id="sys-header" style="display: none;">
         <div class="header-left">
-            <img src="imagens/brasao.png" alt="Brasão" class="header-brasao" onerror="this.style.display='none'">
-            <div class="header-brand">
-                EEEP Comendador Miguel Gurgel
-                <small>Sistema de Gestão Escolar</small>
-            </div>
+            <div class="header-brand">EEEP Miguel Gurgel<small>Sistema de Gestão Escolar</small></div>
         </div>
         <div class="header-actions">
             <button class="dark-toggle" onclick="toggleDarkMode()" id="darkModeBtn">🌙</button>
             <div class="user-info">
-                <span id="user-info"></span>
+                <span id="user-display-name"></span>
                 <button class="btn-logout" onclick="logout()">Sair</button>
             </div>
         </div>
@@ -80,26 +66,26 @@
     <main id="app-content" style="display: none;">
         <div id="main-menu" class="section active">
             <div class="welcome-box">
-                <h1>Bem-vindo, servidor!</h1>
-                <p style="opacity:0.7;">O que você deseja gerenciar hoje?</p>
+                <h1>Painel de Controle</h1>
+                <p>Selecione uma área para gerenciar</p>
             </div>
             <div class="menu-cards">
                 <div class="card" onclick="showSection('reservas')">
                     <div class="card-icon">🏫</div>
-                    <h3>Alocação de Laboratórios</h3>
-                    <p>Controle de horários de Informática, Hardware e Multimídia.</p>
+                    <h3>Alocação de Labs</h3>
+                    <p>Agendamento por calendário real.</p>
                 </div>
                 <div class="card" onclick="showSection('monitoria')">
                     <div class="card-icon">📋</div>
-                    <h3>Escala de Monitoria</h3>
-                    <p>Gestão de postos de apoio e alunos monitores.</p>
+                    <h3>Monitoria</h3>
+                    <p>Escala de postos e alunos.</p>
                 </div>
             </div>
         </div>
 
         <section id="sec-reservas" class="section">
             <div class="module-header">
-                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
+                <button class="btn-back" onclick="showSection('menu')">← Voltar</button>
                 <div class="lab-selector">
                     <button class="btn-lab active" onclick="changeLab('Lab Informática', this)">💻 Informática</button>
                     <button class="btn-lab" onclick="changeLab('Lab Hardware', this)">🛠️ Hardware</button>
@@ -107,49 +93,50 @@
                 </div>
             </div>
 
-            <div class="filter-bar">
-                <select id="semanaSelect" onchange="renderTable()">
-                    <option value="1">Semana 1</option><option value="2">Semana 2</option>
-                    <option value="3">Semana 3</option><option value="4">Semana 4</option>
-                </select>
-                <select id="diaSelect" onchange="renderTable()">
-                    <option value="Segunda">Segunda-feira</option><option value="Terça">Terça-feira</option>
-                    <option value="Quarta">Quarta-feira</option><option value="Quinta">Quinta-feira</option>
-                    <option value="Sexta">Sexta-feira</option>
-                </select>
-                <button onclick="copyPreviousWeek()">📋 Copiar da semana anterior</button>
-                <button onclick="clearDay()">🧹 Limpar dia</button>
-            </div>
+            <div class="reservation-layout">
+                <aside class="calendar-widget">
+                    <div class="calendar-header">
+                        <button class="btn-cal" onclick="changeMonth(-1)">❮</button>
+                        <h3 id="monthYearDisplay">Mês Ano</h3>
+                        <button class="btn-cal" onclick="changeMonth(1)">❯</button>
+                    </div>
+                    <div class="calendar-weekdays">
+                        <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                    </div>
+                    <div id="calendarDays" class="calendar-days"></div>
+                </aside>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Horário</th>
-                            <th>Professor</th>
-                            <th>Turma</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
+                <div class="schedule-container">
+                    <div class="schedule-header">
+                        <h3 id="selectedDateDisplay">Selecione uma data</h3>
+                        <button onclick="clearDay()" class="btn-clear">🧹 Limpar Dia</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Horário</th>
+                                    <th>Professor / Responsável</th>
+                                    <th>Turma</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
 
         <section id="sec-monitoria" class="section">
             <div class="module-header">
-                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
-                <h2 style="color: var(--primary);">📋 Escala de Monitoria</h2>
+                <button class="btn-back" onclick="showSection('menu')">← Voltar</button>
+                <h2>📋 Escala de Monitoria</h2>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Posto</th>
-                            <th>Aluno</th>
-                            <th>Turma</th>
-                            <th>Ação</th>
-                        </tr>
+                        <tr><th>Posto</th><th>Aluno Monitor</th><th>Turma</th><th>Ação</th></tr>
                     </thead>
                     <tbody id="tableBodyMonitoria"></tbody>
                 </table>
