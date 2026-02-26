@@ -1,124 +1,51 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
-    /* Paleta de Cores EEEP Comendador Miguel Gurgel */
-    --school-green: #00582e;    /* Verde Institucional Forte */
-    --school-green-dark: #003d20;
-    --school-accent: #c7a234;   /* Dourado do Brasão */
-    --bg-color: #f4f7f6;        /* Fundo Branco Gelo */
+    --school-blue: #0f172a;
+    --school-gold: #f59e0b;
+    --bg-color: #f1f5f9;
     --white: #ffffff;
-    --text-dark: #2c3e50;
-    --border-color: #dce4ec;
+    --border: #cbd5e1;
 }
 
-body { font-family: 'Inter', sans-serif; background: var(--bg-color); margin: 0; color: var(--text-dark); }
-button { cursor: pointer; transition: all 0.3s ease; }
+body { font-family: 'Inter', sans-serif; background: var(--bg-color); margin: 0; color: #334155; }
 
-/* --- TELA DE LOGIN E CADASTRO --- */
-#auth-screen { 
-    display: flex; flex-direction: column; min-height: 100vh; background: var(--bg-color);
-}
+/* Login e Cadastro */
+#auth-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; position: fixed; width: 100%; top: 0; left: 0; background: var(--bg-color); z-index: 999; }
+.auth-container { background: white; padding: 40px; border-radius: 12px; width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 6px solid var(--school-blue); }
+.school-logo { font-size: 32px; font-weight: 800; color: var(--school-blue); text-align: center; margin-bottom: 20px; }
+input, select { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 6px; border: 1px solid var(--border); box-sizing: border-box; font-size: 14px; }
 
-/* Banner estilo "Hero" no topo do login */
-.auth-banner {
-    background: linear-gradient(135deg, var(--school-green) 0%, var(--school-green-dark) 100%);
-    color: var(--white);
-    padding: 40px 20px;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0,88,46,0.2);
-}
+/* Dashboard */
+.menu-cards { display: flex; gap: 30px; justify-content: center; padding: 40px 20px; flex-wrap: wrap; }
+.card { background: white; width: 320px; padding: 40px; border-radius: 12px; cursor: pointer; text-align: center; border: 1px solid var(--border); transition: 0.3s ease; }
+.card:hover { transform: translateY(-8px); border-color: var(--school-gold); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+.card-icon { font-size: 60px; margin-bottom: 20px; }
 
-.auth-banner h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px; }
-.auth-banner p { margin: 10px 0 0; font-size: 16px; opacity: 0.9; }
+/* Header */
+header { background: var(--school-blue); color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
 
-.auth-content-wrapper {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 20px;
-    margin-top: -30px; /* Sobrepõe levemente o banner */
-}
-
-.auth-container { 
-    background: var(--white); 
-    padding: 40px 50px; 
-    border-radius: 16px; 
-    width: 100%; 
-    max-width: 450px; 
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    border-top: 4px solid var(--school-accent);
-    text-align: center;
-}
-
-.login-logo-img {
-    max-width: 120px;
-    height: auto;
-    margin-bottom: 25px;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-}
-
-.auth-container h2 { color: var(--school-green); margin-bottom: 25px; font-size: 22px; }
-input, select { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 8px; border: 2px solid var(--border-color); box-sizing: border-box; font-size: 14px; background: #f9fbfd; transition: 0.3s; }
-input:focus, select:focus { border-color: var(--school-green); outline: none; background: var(--white); }
-
-.btn-primary { background: var(--school-green); color: var(--white); border: none; padding: 15px; border-radius: 8px; font-weight: 700; width: 100%; font-size: 16px; }
-.btn-primary:hover { background: var(--school-green-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,88,46,0.2); }
-.auth-link { margin-top: 20px; font-size: 14px; color: #666; }
-.auth-link a { color: var(--school-green); font-weight: 700; text-decoration: none; }
-
-/* --- CABEÇALHO DO SISTEMA --- */
-header { 
-    background: var(--school-green); 
-    color: var(--white); 
-    padding: 15px 30px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.header-brand { display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 18px; }
-.header-logo-img { height: 45px; width: auto; } /* Ajuste para o logo horizontal */
-.btn-logout { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: var(--white); padding: 8px 16px; border-radius: 6px; font-size: 13px; }
-.btn-logout:hover { background: rgba(255,255,255,0.2); }
-
-/* --- DASHBOARD E SEÇÕES --- */
-.section { display: none; padding: 40px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+/* Seções e Tabelas */
+.section { display: none; padding: 30px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.4s; }
 .section.active { display: block; }
-.welcome-box { text-align: center; margin-bottom: 40px; }
-.welcome-box h1 { color: var(--school-green); font-size: 28px; margin-bottom: 10px; }
+.table-container { background: white; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; } /* Caixas Certinhas */
+th { background: #f8fafc; padding: 15px; text-align: left; font-size: 12px; color: var(--school-blue); border-bottom: 2px solid #e2e8f0; }
+td { padding: 8px 15px; border-bottom: 1px solid #f1f5f9; }
 
-.menu-cards { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
-.card { background: var(--white); width: 320px; padding: 40px; border-radius: 16px; cursor: pointer; text-align: center; border: 2px solid transparent; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s ease; }
-.card:hover { border-color: var(--school-accent); transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,88,46,0.1); }
-.card-icon { font-size: 60px; margin-bottom: 20px; display: inline-block; padding: 20px; background: #f0f7f4; border-radius: 50%; color: var(--school-green); }
-.card h3 { color: var(--school-green); margin-bottom: 10px; }
+/* Botões */
+.btn-primary, .btn-save { background: var(--school-blue); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 700; width: 100%; }
+.btn-primary:hover { background: #1e293b; }
+.lab-selector { display: flex; gap: 10px; background: #e2e8f0; padding: 6px; border-radius: 8px; }
+.btn-lab { border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; color: #64748b; background: transparent; }
+.btn-lab.active { background: white; color: var(--school-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.btn-back { background: #64748b; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }
+.btn-logout { background: transparent; border: 1px solid white; color: white; cursor: pointer; padding: 5px 12px; border-radius: 4px; }
 
-/* --- TABELAS E FILTROS --- */
-.module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
-.btn-back { background: var(--white); color: var(--school-green); border: 2px solid var(--school-green); padding: 10px 20px; border-radius: 8px; font-weight: 600; }
-.btn-back:hover { background: var(--school-green); color: var(--white); }
+/* Utils */
+.lunch-break { background-color: #fffbeb; text-align: center; font-weight: bold; color: #854d0e; }
+#toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+.toast { background: var(--school-blue); color: white; padding: 12px 25px; border-radius: 8px; margin-top: 10px; border-left: 4px solid var(--school-gold); animation: slideIn 0.3s; }
 
-.lab-selector { display: flex; gap: 10px; background: var(--white); padding: 8px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.btn-lab { border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; color: #666; background: transparent; }
-.btn-lab.active { background: var(--school-green); color: var(--white); box-shadow: 0 4px 10px rgba(0,88,46,0.2); }
-
-.filter-bar select { width: auto; min-width: 150px; display: inline-block; margin-right: 10px; border-color: var(--school-green); color: var(--school-green); font-weight: 600; }
-#currentLabTitle { color: var(--school-green); border-left: 5px solid var(--school-accent); padding-left: 15px; }
-
-.table-container { background: var(--white); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.03); }
-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-th { background: var(--school-green); color: var(--white); padding: 18px; text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-right: 1px solid rgba(255,255,255,0.1); }
-td { padding: 12px 18px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-td input { margin-bottom: 0; background: transparent; border: 1px solid transparent; padding: 10px; }
-td input:focus { background: var(--white); border-color: var(--school-accent); box-shadow: 0 0 0 3px rgba(199, 162, 52, 0.2); }
-
-.btn-save { background: var(--school-green); color: var(--white); border: none; padding: 10px; border-radius: 6px; font-weight: 600; width: 100%; }
-.btn-save:hover { background: var(--school-accent); color: var(--school-green-dark); }
-.lunch-break td { background-color: #fffce0; color: #8a6d00; font-weight: 700; text-align: center; letter-spacing: 1px; }
-
-/* --- TOASTS --- */
-#toast-container { position: fixed; bottom: 25px; right: 25px; z-index: 1000; }
-.toast { background: var(--white); color: var(--school-green); padding: 15px 25px; border-radius: 8px; margin-top: 15px; border-left: 5px solid var(--school-accent); box-shadow: 0 10px 30px rgba(0,0,0,0.1); font-weight: 600; animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
