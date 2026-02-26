@@ -127,8 +127,11 @@
             font-weight: 800;
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 24px;
+            text-decoration: none;
+            border-bottom: none;
         }
 
         .input-group {
@@ -180,6 +183,39 @@
         .strength-weak { background: var(--error); width: 33%; }
         .strength-medium { background: var(--warning); width: 66%; }
         .strength-strong { background: var(--success); width: 100%; }
+
+        /* Botões de autenticação */
+        .btn-auth {
+            width: 100%;
+            padding: 14px;
+            border-radius: 40px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-auth:hover {
+            background: var(--primary-light);
+            transform: scale(1.02);
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .auth-link a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
 
         /* ===== CABEÇALHO DO SISTEMA ===== */
         #sys-header {
@@ -297,7 +333,10 @@
             font-size: 36px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            border-bottom: none;
         }
 
         .menu-cards {
@@ -564,8 +603,8 @@
                     <input type="password" id="login-pass" placeholder="Senha">
                     <span class="password-toggle" onclick="togglePassword('login-pass')">👁️</span>
                 </div>
-                <button class="btn-primary" onclick="handleLogin()" style="width:100%; padding:14px; border-radius:40px; background:var(--primary); color:white; border:none; font-weight:700; cursor:pointer;">Entrar</button>
-                <p style="text-align:center; margin-top:20px;">Novo por aqui? <a href="#" onclick="toggleAuth('signup')">Criar conta</a></p>
+                <button class="btn-auth" onclick="handleLogin()">Entrar</button>
+                <p class="auth-link">Novo por aqui? <a href="#" onclick="toggleAuth('signup')">Criar conta</a></p>
             </div>
 
             <div id="signup-form" style="display: none;">
@@ -590,8 +629,8 @@
                 <div class="password-strength">
                     <div id="strength-bar" class="strength-bar"></div>
                 </div>
-                <button class="btn-primary" onclick="handleSignup()" style="width:100%; padding:14px; border-radius:40px; background:var(--primary); color:white; border:none; font-weight:700; cursor:pointer; margin-top:16px;">Finalizar Cadastro</button>
-                <p style="text-align:center; margin-top:20px;">Já tem conta? <a href="#" onclick="toggleAuth('login')">Fazer Login</a></p>
+                <button class="btn-auth" onclick="handleSignup()" style="margin-top:16px;">Finalizar Cadastro</button>
+                <p class="auth-link">Já tem conta? <a href="#" onclick="toggleAuth('login')">Fazer Login</a></p>
             </div>
         </div>
     </div>
@@ -704,6 +743,7 @@
     </main>
 
     <script>
+        // (O JavaScript permanece o mesmo, pois não havia necessidade de alteração)
         // ==================== CONFIGURAÇÕES E ESTADO GLOBAL ====================
         const CONFIG = {
             slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
