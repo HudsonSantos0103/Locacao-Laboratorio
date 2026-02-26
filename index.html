@@ -3,89 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Gestão Escolar Integrado</title>
+    <title>SGE | EEEP Comendador Miguel Gurgel</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="icon" type="image/png" href="image_2.png">
 </head>
 <body>
 
-    <div id="auth-screen" class="section active">
-        <div class="auth-container">
-            <div id="login-form">
-                <h1>Acesso ao Sistema</h1>
-                <input type="text" id="login-email" placeholder="E-mail ou Matrícula">
-                <input type="password" id="login-pass" placeholder="Senha">
-                <button class="btn-save" onclick="handleLogin()">Entrar</button>
-                <p>Não tem conta? <a href="#" onclick="toggleAuth('signup')">Cadastre-se</a></p>
-            </div>
+    <div id="toast-container"></div>
 
-            <div id="signup-form" style="display: none;">
-                <h1>Cadastro de Usuário</h1>
-                <input type="text" id="reg-nome" placeholder="Nome Completo">
-                <input type="text" id="reg-matricula" placeholder="Matrícula/ID">
-                <select id="reg-cargo">
-                    <option value="Professor">Professor(a)</option>
-                    <option value="Coordenador">Coordenador(a)</option>
-                </select>
-                <input type="email" id="reg-email" placeholder="E-mail Institucional">
-                <input type="password" id="reg-pass" placeholder="Criar Senha (mín. 6 dígitos)">
-                <button class="btn-save" onclick="handleSignup()">Finalizar Cadastro</button>
-                <p>Já tem conta? <a href="#" onclick="toggleAuth('login')">Faça Login</a></p>
+    <div id="auth-screen">
+        <div class="auth-banner">
+            <h1>EEEP COMENDADOR MIGUEL GURGEL</h1>
+            <p>Sistema de Gestão Escolar Integrado</p>
+        </div>
+        <div class="auth-content-wrapper">
+            <div class="auth-container">
+                <div id="login-form">
+                    <img src="image_2.png" alt="Brasão Miguel Gurgel" class="login-logo-img">
+                    <h2>Acesso Restrito</h2>
+                    <input type="text" id="login-email" placeholder="E-mail institucional ou Matrícula">
+                    <input type="password" id="login-pass" placeholder="Senha de acesso">
+                    <button class="btn-primary" onclick="handleLogin()">Acessar Painel</button>
+                    <p class="auth-link">Não possui acesso? <a href="#" onclick="toggleAuth('signup')">Solicitar cadastro</a></p>
+                </div>
+
+                <div id="signup-form" style="display: none;">
+                    <img src="image_2.png" alt="Brasão Miguel Gurgel" class="login-logo-img" style="max-width: 80px;">
+                    <h2>Novo Cadastro</h2>
+                    <input type="text" id="reg-nome" placeholder="Nome Completo">
+                    <select id="reg-cargo">
+                        <option value="" disabled selected>Selecione seu cargo</option>
+                        <option value="Professor">Professor(a)</option>
+                        <option value="Coordenador">Coordenador(a) de Curso</option>
+                        <option value="Núcleo Gestor">Núcleo Gestor</option>
+                    </select>
+                    <input type="email" id="reg-email" placeholder="E-mail Institucional (@eeep.ce.gov.br)">
+                    <input type="password" id="reg-pass" placeholder="Crie uma senha (mín. 6 dígitos)">
+                    <button class="btn-primary" onclick="handleSignup()">Finalizar Registro</button>
+                    <p class="auth-link">Já tem cadastro? <a href="#" onclick="toggleAuth('login')">Voltar ao login</a></p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="app-content" style="display: none;">
+    <header id="sys-header" style="display: none;">
+        <div class="header-brand">
+            <img src="image_3.png" alt="Logo Horizontal Miguel Gurgel" class="header-logo-img">
+            <span>| Sistema de Gestão</span>
+        </div>
+        <div class="header-user">
+            <span id="user-info" style="margin-right: 15px; font-weight: 500;">Usuário</span>
+            <button class="btn-logout" onclick="logout()">Encerrar Sessão</button>
+        </div>
+    </header>
+
+    <main id="app-content" style="display: none;">
         
         <div id="main-menu" class="section">
-            <div class="hero">
-                <h1 id="welcome-user">Bem-vindo!</h1>
-                <p>Selecione o sistema que deseja acessar:</p>
-                <div class="menu-cards">
-                    <div class="card" onclick="showSection('reservas')">
-                        <div class="icon">🏫</div>
-                        <h2>Reserva de Laboratórios</h2>
-                        <p>Agendamento semanal para professores</p>
-                    </div>
-                    <div class="card" onclick="showSection('monitoria')">
-                        <div class="icon">📋</div>
-                        <h2>Escala de Monitoria</h2>
-                        <p>Controle de postos para coordenação</p>
-                    </div>
+            <div class="welcome-box">
+                <h1>Olá, <span id="user-name-display">Colaborador</span>!</h1>
+                <p>Bem-vindo ao painel digital da EEEP Comendador Miguel Gurgel.</p>
+            </div>
+            <div class="menu-cards">
+                <div class="card" onclick="showSection('reservas')">
+                    <div class="card-icon">💻</div>
+                    <h3>Alocação de Laboratórios</h3>
+                    <p>Gestão de horários dos laboratórios de Informática e Base Técnica.</p>
                 </div>
-                <button class="btn-logout" onclick="logout()">Sair do Sistema</button>
+                <div class="card" onclick="showSection('monitoria')">
+                    <div class="card-icon">🤝</div>
+                    <h3>Escala de Monitoria</h3>
+                    <p>Organização dos alunos monitores e postos de atuação diária.</p>
+                </div>
             </div>
         </div>
 
         <section id="sec-reservas" class="section">
-            <header>
-                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
-                <h1>Reserva de Laboratórios</h1>
+            <div class="module-header">
+                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Início</button>
                 <div class="lab-selector">
-                    <button class="btn-lab" onclick="changeLab('Lab Informática')">Lab Informática</button>
-                    <button class="btn-lab" onclick="changeLab('Lab Hardware')">Lab Hardware</button>
-                    <button class="btn-lab" onclick="changeLab('Lab Multimídia')">Lab Multimídia</button>
+                    <button class="btn-lab active" onclick="changeLab('Lab Informática 1', this)">Lab Info 01</button>
+                    <button class="btn-lab" onclick="changeLab('Lab Informática 2', this)">Lab Info 02</button>
+                    <button class="btn-lab" onclick="changeLab('Lab Hardware/Redes', this)">Lab Hardware</button>
                 </div>
-                <div class="date-selector">
-                    <select id="semanaSelect" onchange="renderTable()">
-                        <option value="Semana 1">Semana 1</option>
-                        <option value="Semana 2">Semana 2</option>
-                        <option value="Semana 3">Semana 3</option>
-                        <option value="Semana 4">Semana 4</option>
-                    </select>
-                    <select id="diaSelect" onchange="renderTable()">
-                        <option value="Segunda">Segunda-feira</option>
-                        <option value="Terça">Terça-feira</option>
-                        <option value="Quarta">Quarta-feira</option>
-                        <option value="Quinta">Quinta-feira</option>
-                        <option value="Sexta">Sexta-feira</option>
-                    </select>
-                </div>
-                <h2 id="currentLabTitle">Lab Informática</h2>
-            </header>
+            </div>
+
+            <div class="filter-bar" style="margin-bottom: 20px;">
+                <select id="semanaSelect" onchange="renderTable()">
+                    <option value="1">Semana 01 do Mês</option><option value="2">Semana 02 do Mês</option>
+                    <option value="3">Semana 03 do Mês</option><option value="4">Semana 04 do Mês</option>
+                </select>
+                <select id="diaSelect" onchange="renderTable()">
+                    <option value="Segunda">Segunda-feira</option><option value="Terça">Terça-feira</option>
+                    <option value="Quarta">Quarta-feira</option><option value="Quinta">Quinta-feira</option>
+                    <option value="Sexta">Sexta-feira</option>
+                </select>
+            </div>
+
+            <h2 id="currentLabTitle">Lab Informática 1</h2>
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr><th>Horário</th><th>Professor</th><th>Turma</th><th>Ação</th></tr>
+                        <tr>
+                            <th style="width: 130px;">Horário Aula</th>
+                            <th>Professor(a) Responsável</th>
+                            <th style="width: 150px;">Turma/Curso</th>
+                            <th style="width: 110px; text-align: center;">Ação</th>
+                        </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
                 </table>
@@ -93,31 +117,25 @@
         </section>
 
         <section id="sec-monitoria" class="section">
-            <header>
-                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
-                <h1>Escala de Monitoria</h1>
-                <div class="date-selector">
-                    <select id="monSemanaSelect" onchange="renderMonitoria()">
-                        <option value="1">Semana 1</option><option value="2">Semana 2</option>
-                        <option value="3">Semana 3</option><option value="4">Semana 4</option>
-                    </select>
-                    <select id="monDiaSelect" onchange="renderMonitoria()">
-                        <option value="Segunda">Segunda-feira</option><option value="Terça">Terça-feira</option>
-                        <option value="Quarta">Quarta-feira</option><option value="Quinta">Quinta-feira</option>
-                        <option value="Sexta">Sexta-feira</option>
-                    </select>
-                </div>
-            </header>
+            <div class="module-header">
+                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Início</button>
+                <h2>Escala Diária de Monitoria</h2>
+            </div>
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr><th>Cargo / Posto</th><th>Nome do Aluno</th><th>Turma</th><th>Ação</th></tr>
+                        <tr>
+                            <th style="width: 220px;">Posto de Atuação</th>
+                            <th>Aluno(a) Monitor(a)</th>
+                            <th style="width: 150px;">Turma</th>
+                            <th style="width: 110px; text-align: center;">Status</th>
+                        </tr>
                     </thead>
                     <tbody id="tableBodyMonitoria"></tbody>
                 </table>
             </div>
         </section>
-    </div>
+    </main>
 
     <script src="index.js"></script>
 </body>
