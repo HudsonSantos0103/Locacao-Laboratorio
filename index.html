@@ -242,7 +242,8 @@
         .header-brasao {
             height: 48px;
             width: auto;
-            filter: brightness(0) invert(1); /* torna a imagem branca se for escura */
+            /* Remove filtro que poderia esconder a imagem */
+            filter: none;
         }
 
         .header-brand {
@@ -567,7 +568,7 @@
         }
 
         body.dark .header-brasao {
-            filter: none; /* mantém a original no dark mode se ela for clara */
+            filter: none; /* Mantém a imagem original */
         }
 
         /* Responsividade */
@@ -612,6 +613,9 @@
                 <div class="school-logo-text" style="display: none;">Cadastro</div>
                 <div class="input-group">
                     <input type="text" id="reg-nome" placeholder="Nome Completo">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="reg-matricula" placeholder="Número da Matrícula">
                 </div>
                 <div class="input-group">
                     <select id="reg-cargo">
@@ -743,7 +747,6 @@
     </main>
 
     <script>
-        // (O JavaScript permanece o mesmo, pois não havia necessidade de alteração)
         // ==================== CONFIGURAÇÕES E ESTADO GLOBAL ====================
         const CONFIG = {
             slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
@@ -867,10 +870,11 @@
         function handleSignup() {
             const email = document.getElementById('reg-email').value.toLowerCase().trim();
             const nome = document.getElementById('reg-nome').value.trim();
+            const matricula = document.getElementById('reg-matricula').value.trim();
             const pass = document.getElementById('reg-pass').value;
             const cargo = document.getElementById('reg-cargo').value;
 
-            if (!email || !nome || pass.length < 6) {
+            if (!email || !nome || !matricula || pass.length < 6) {
                 showToast('Preencha todos os campos e use senha com no mínimo 6 caracteres', 'error');
                 return;
             }
@@ -878,7 +882,8 @@
                 showToast('E-mail já cadastrado!', 'error');
                 return;
             }
-            appData.users[email] = { nome, pass, cargo };
+            // Armazena também a matrícula junto com os dados do usuário
+            appData.users[email] = { nome, matricula, pass, cargo };
             saveData();
             showToast('✅ Cadastro realizado com sucesso!', 'success');
             toggleAuth('login');
@@ -894,7 +899,7 @@
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('sys-header').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'block';
-                document.getElementById('user-info').innerText = `${user.cargo}: ${user.nome}`;
+                document.getElementById('user-info').innerText = `${user.cargo}: ${user.nome} (${user.matricula})`;
                 showSection('menu');
                 showToast(`Bem-vindo, ${user.nome}!`, 'success');
                 // Salva login no localStorage para persistência (opcional)
