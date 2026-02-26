@@ -1,175 +1,207 @@
-const CONFIG = {
-    slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
-    postosMonitoria: ["Fila do Intervalo", "Refeitório (Suco)", "Refeitório (Pratos)", "Portaria Almoço", "Pátio Central"],
+/**
+ * SISTEMA DE GESTÃO ESCOLAR - CORE ENGINE
+ * @author Senior Dev
+ * @version 2.0.0
+ */
+
+// 1. STATE MANAGEMENT
+const state = {
+    user: null,
+    currentLab: "Informática",
+    selectedDate: new Date(),
+    calendarDate: new Date(), // Mês visível no calendário
+    config: {
+        slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00 (Almoço)", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
+        postos: ["Fila do Intervalo", "Refeitório (Suco)", "Refeitório (Pratos)", "Portaria Almoço", "Pátio Central"]
+    }
 };
 
-let currentLab = "Lab Informática";
-let calendarViewDate = new Date();
-let selectedDateStr = "";
-
-const storage = {
-    set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
-    get: (key) => JSON.parse(localStorage.getItem(key))
+// 2. PERSISTENCE LAYER
+const db = {
+    save: (key, val) => localStorage.setItem(`sge_${key}`, JSON.stringify(val)),
+    get: (key) => JSON.parse(localStorage.getItem(`sge_${key}`)),
+    remove: (key) => localStorage.removeItem(`sge_${key}`)
 };
 
-// === AUXILIARES ===
-function showToast(msg) {
-    const c = document.getElementById('toast-container');
-    const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
-    c.appendChild(t); setTimeout(() => t.remove(), 3000);
-}
+// 3. UI HELPERS
+const formatDate = (date) => date.toISOString().split('T')[0];
+const showToast = (msg) => {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerText = msg;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+};
 
-const formatDateKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-
-// === AUTENTICAÇÃO ===
-function toggleAuth(type) {
-    document.getElementById('login-form').style.display = type === 'signup' ? 'none' : 'block';
-    document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
-}
-
+// 4. AUTH LOGIC
 function handleLogin() {
-    const email = document.getElementById('login-email').value.toLowerCase().trim();
+    const email = document.getElementById('login-email').value.trim();
     const pass = document.getElementById('login-pass').value;
-    const user = storage.get(`user-${email}`);
+    const user = db.get(`u_${email.toLowerCase()}`);
 
     if (user && user.pass === pass) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('sys-header').style.display = 'flex';
-        document.getElementById('app-content').style.display = 'block';
-        document.getElementById('user-display-name').innerText = user.nome;
-        showSection('menu');
-    } else { showToast("Credenciais inválidas"); }
-}
-
-function handleSignup() {
-    const email = document.getElementById('reg-email').value;
-    const nome = document.getElementById('reg-nome').value;
-    const pass = document.getElementById('reg-pass').value;
-    if(pass.length < 6) return showToast("Senha curta demais");
-    storage.set(`user-${email}`, { nome, pass });
-    showToast("Cadastrado! Faça login.");
-    toggleAuth('login');
-}
-
-function logout() { location.reload(); }
-
-// === NAVEGAÇÃO ===
-function showSection(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id === 'menu' ? 'main-menu' : `sec-${id}`).classList.add('active');
-    if(id === 'reservas') {
-        if(!selectedDateStr) selectDate(new Date());
-        renderCalendar();
-    } else if(id === 'monitoria') {
-        renderMonitoria();
+        state.user = user;
+        initApp();
+    } else {
+        alert("Credenciais inválidas.");
     }
 }
 
-// === CALENDÁRIO ===
-function changeMonth(dir) {
-    calendarViewDate.setMonth(calendarViewDate.getMonth() + dir);
-    renderCalendar();
+function handleSignup() {
+    const email = document.getElementById('reg-email').value.trim().toLowerCase();
+    const user = {
+        nome: document.getElementById('reg-nome').value,
+        cargo: document.getElementById('reg-cargo').value,
+        pass: document.getElementById('reg-pass').value
+    };
+    if(!email || user.pass.length < 6) return alert("Dados inválidos");
+    db.save(`u_${email}`, user);
+    alert("Conta criada!");
+    toggleAuth('login');
 }
 
-function selectDate(date) {
-    selectedDateStr = formatDateKey(date);
-    document.getElementById('selectedDateDisplay').innerText = date.toLocaleDateString('pt-BR', { dateStyle: 'long' });
-    renderCalendar();
-    renderTable();
-}
-
+// 5. CALENDAR CORE
 function renderCalendar() {
-    const year = calendarViewDate.getFullYear();
-    const month = calendarViewDate.getMonth();
-    const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const container = document.getElementById('cal-days');
+    const monthYear = document.getElementById('cal-month-year');
+    container.innerHTML = "";
+
+    const year = state.calendarDate.getFullYear();
+    const month = state.calendarDate.getMonth();
     
-    document.getElementById('monthYearDisplay').innerText = `${monthNames[month]} ${year}`;
-    const container = document.getElementById('calendarDays');
-    container.innerHTML = '';
+    monthYear.innerText = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(state.calendarDate);
 
     const firstDay = new Date(year, month, 1).getDay();
     const lastDay = new Date(year, month + 1, 0).getDate();
 
-    for(let i=0; i<firstDay; i++) container.innerHTML += '<div class="cal-day empty"></div>';
+    // Dias vazios do mês anterior
+    for (let i = 0; i < firstDay; i++) {
+        container.innerHTML += `<div class="day empty"></div>`;
+    }
 
-    for(let i=1; i<=lastDay; i++) {
-        const d = new Date(year, month, i);
-        const dStr = formatDateKey(d);
-        const hasBooking = CONFIG.slots.some(s => storage.get(`res-${currentLab}-${dStr}-${s}`));
-        
-        const div = document.createElement('div');
-        div.className = `cal-day ${dStr === selectedDateStr ? 'active' : ''} ${hasBooking ? 'has-booking' : ''}`;
-        div.innerText = i;
-        div.onclick = () => selectDate(d);
-        container.appendChild(div);
+    // Dias do mês atual
+    for (let d = 1; d <= lastDay; d++) {
+        const dateObj = new Date(year, month, d);
+        const dateStr = formatDate(dateObj);
+        const isSelected = dateStr === formatDate(state.selectedDate);
+        const isToday = dateStr === formatDate(new Date());
+
+        const dayEl = document.createElement('div');
+        dayEl.className = `day ${isSelected ? 'active' : ''} ${isToday ? 'today' : ''}`;
+        dayEl.innerText = d;
+        dayEl.onclick = () => {
+            state.selectedDate = dateObj;
+            renderCalendar();
+            renderSchedule();
+        };
+        container.appendChild(dayEl);
     }
 }
 
-// === RESERVAS ===
-function changeLab(lab, btn) {
-    currentLab = lab;
-    document.querySelectorAll('.btn-lab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+function changeMonth(dir) {
+    state.calendarDate.setMonth(state.calendarDate.getMonth() + dir);
     renderCalendar();
-    renderTable();
 }
 
-function renderTable() {
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
-    CONFIG.slots.forEach((slot, i) => {
-        const isLunch = slot.includes("12:00");
-        const saved = storage.get(`res-${currentLab}-${selectedDateStr}-${slot}`) || { prof: '', turma: '' };
-        const row = document.createElement('tr');
-        if (isLunch) {
-            row.innerHTML = `<td colspan="4" style="text-align:center; background:#fef3c7; color:#d97706; font-weight:700">🍱 ALMOÇO</td>`;
+// 6. SCHEDULE & MONITORIA LOGIC
+function renderSchedule() {
+    const tbody = document.getElementById('reserva-rows');
+    const dateKey = formatDate(state.selectedDate);
+    document.getElementById('current-date-label').innerText = state.selectedDate.toLocaleDateString('pt-BR', { dateStyle: 'full' });
+    
+    tbody.innerHTML = "";
+
+    state.config.slots.forEach((slot, i) => {
+        const storageKey = `res_${state.currentLab}_${dateKey}_${i}`;
+        const saved = db.get(storageKey) || { prof: "", turma: "" };
+        const isLunch = slot.includes("Almoço");
+
+        const tr = document.createElement('tr');
+        if(isLunch) {
+            tr.innerHTML = `<td colspan="4" style="text-align:center; background:rgba(245,158,11,0.1); font-weight:700">🍴 INTERVALO</td>`;
         } else {
-            row.innerHTML = `
+            tr.innerHTML = `
                 <td><strong>${slot}</strong></td>
-                <td><input type="text" id="p-${i}" value="${saved.prof}"></td>
-                <td><input type="text" id="t-${i}" value="${saved.turma}"></td>
-                <td><button class="btn-save" onclick="saveBooking('${slot}', ${i})">Salvar</button></td>
+                <td><input type="text" id="prof-${i}" value="${saved.prof}" placeholder="Nome do Professor"></td>
+                <td><input type="text" id="turma-${i}" value="${saved.turma}" placeholder="Ex: DS1"></td>
+                <td><button class="btn-save" onclick="saveReserva(${i})">OK</button></td>
             `;
         }
-        tbody.appendChild(row);
+        tbody.appendChild(tr);
     });
 }
 
-function saveBooking(slot, i) {
-    const data = { prof: document.getElementById(`p-${i}`).value, turma: document.getElementById(`t-${i}`).value.toUpperCase() };
-    storage.set(`res-${currentLab}-${selectedDateStr}-${slot}`, data);
-    showToast("Reserva salva!");
-    renderCalendar();
+function saveReserva(index) {
+    const dateKey = formatDate(state.selectedDate);
+    const data = {
+        prof: document.getElementById(`prof-${index}`).value,
+        turma: document.getElementById(`turma-${index}`).value.toUpperCase()
+    };
+    db.save(`res_${state.currentLab}_${dateKey}_${index}`, data);
+    alert("Horário garantido!");
 }
 
-function clearDay() {
-    if(!confirm("Limpar tudo?")) return;
-    CONFIG.slots.forEach(s => localStorage.removeItem(`res-${currentLab}-${selectedDateStr}-${s}`));
-    renderTable(); renderCalendar();
-}
-
-// === MONITORIA ===
 function renderMonitoria() {
-    const tbody = document.getElementById('tableBodyMonitoria');
-    tbody.innerHTML = '';
-    CONFIG.postosMonitoria.forEach((p, i) => {
-        const saved = storage.get(`mon-${p}`) || { aluno: '', turma: '' };
+    const tbody = document.getElementById('monitoria-rows');
+    tbody.innerHTML = "";
+    state.config.postos.forEach((posto, i) => {
+        const saved = db.get(`mon_${posto}`) || { aluno: "", turma: "" };
         tbody.innerHTML += `
             <tr>
-                <td><strong>${p}</strong></td>
-                <td><input type="text" id="mn-${i}" value="${saved.aluno}"></td>
-                <td><input type="text" id="mt-${i}" value="${saved.turma}"></td>
-                <td><button class="btn-save" onclick="saveMon('${p}', ${i})">Salvar</button></td>
-            </tr>`;
+                <td><strong>${posto}</strong></td>
+                <td><input type="text" id="m-aluno-${i}" value="${saved.aluno}"></td>
+                <td><input type="text" id="m-turma-${i}" value="${saved.turma}"></td>
+                <td><button class="btn-save" onclick="saveMonitoria('${posto}', ${i})">Salvar</button></td>
+            </tr>
+        `;
     });
 }
 
-function saveMon(p, i) {
-    storage.set(`mon-${p}`, { aluno: document.getElementById(`mn-${i}`).value, turma: document.getElementById(`mt-${i}`).value });
-    showToast("Escala salva!");
+function saveMonitoria(posto, i) {
+    const data = {
+        aluno: document.getElementById(`m-aluno-${i}`).value,
+        turma: document.getElementById(`m-turma-${i}`).value.toUpperCase()
+    };
+    db.save(`mon_${posto}`, data);
+    alert("Escala atualizada!");
 }
 
-function toggleDarkMode() {
-    document.body.classList.toggle('dark');
-    document.getElementById('darkModeBtn').innerText = document.body.classList.contains('dark') ? '☀️' : '🌙';
+// 7. NAVIGATION & INIT
+function initApp() {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('display-user-name').innerText = state.user.nome;
+    document.getElementById('user-greeting').innerText = state.user.nome.split(' ')[0];
+    renderCalendar();
+    renderSchedule();
 }
+
+function navTo(viewId, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(`view-${viewId}`).classList.add('active');
+    
+    if(btn) {
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    if(viewId === 'monitoria') renderMonitoria();
+}
+
+function setLab(lab, btn) {
+    state.currentLab = lab;
+    document.querySelectorAll('.lab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSchedule();
+}
+
+function toggleAuth(type) {
+    document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
+    document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark');
+    document.getElementById('theme-icon').innerText = document.body.classList.contains('dark') ? '☀️' : '🌙';
+}
+
+function logout() { location.reload(); }

@@ -3,146 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEEP Miguel Gurgel | Gestão Escolar</title>
+    <title>SGE | EEEP Miguel Gurgel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="estilos/style.css">
 </head>
-<body>
+<body class="light-mode">
     <div id="toast-container"></div>
 
-    <div id="auth-screen">
-        <div class="auth-container">
-            <div id="login-form">
-                <img src="imagens/logo-horizontal.png" alt="Logo" class="school-logo-img" onerror="this.style.display='none'">
-                <h2>Acesso ao Sistema</h2>
-                <div class="input-group">
-                    <input type="text" id="login-email" placeholder="E-mail ou Matrícula">
+    <section id="auth-screen">
+        <div class="auth-card">
+            <header>
+                <img src="imagens/logo-horizontal.png" alt="Logo" class="auth-logo">
+                <h2>Portal do Servidor</h2>
+                <p>Gestão de Laboratórios e Monitoria</p>
+            </header>
+
+            <div id="login-form" class="auth-box">
+                <div class="field">
+                    <label>E-mail ou Matrícula</label>
+                    <input type="text" id="login-email" placeholder="nome@exemplo.com">
                 </div>
-                <div class="input-group">
-                    <input type="password" id="login-pass" placeholder="Senha">
-                    <span class="password-toggle" onclick="togglePassword('login-pass')">👁️</span>
+                <div class="field">
+                    <label>Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="login-pass">
+                        <button class="toggle-pass" onclick="togglePassword('login-pass')">👁️</button>
+                    </div>
                 </div>
-                <button class="btn-auth" onclick="handleLogin()">Entrar</button>
-                <p class="auth-link">Novo por aqui? <a href="#" onclick="toggleAuth('signup')">Criar conta</a></p>
+                <button class="btn-primary" onclick="handleLogin()">Acessar Sistema</button>
+                <p class="switch-auth">Primeiro acesso? <a href="javascript:toggleAuth('signup')">Crie sua conta</a></p>
             </div>
 
-            <div id="signup-form" style="display: none;">
-                <h2>Cadastro</h2>
-                <div class="input-group"><input type="text" id="reg-nome" placeholder="Nome Completo"></div>
-                <div class="input-group"><input type="text" id="reg-matricula" placeholder="Matrícula"></div>
-                <div class="input-group">
+            <div id="signup-form" class="auth-box" style="display: none;">
+                <div class="field"><label>Nome Completo</label><input type="text" id="reg-nome"></div>
+                <div class="field">
+                    <label>Cargo</label>
                     <select id="reg-cargo">
                         <option value="Professor">Professor(a)</option>
                         <option value="Coordenador">Coordenador(a)</option>
                     </select>
                 </div>
-                <div class="input-group"><input type="email" id="reg-email" placeholder="E-mail Institucional"></div>
-                <div class="input-group">
-                    <input type="password" id="reg-pass" placeholder="Senha (mín. 6 dígitos)" oninput="checkPasswordStrength(this.value)">
-                    <span class="password-toggle" onclick="togglePassword('reg-pass')">👁️</span>
+                <div class="field"><label>E-mail Institucional</label><input type="email" id="reg-email"></div>
+                <div class="field">
+                    <label>Senha</label>
+                    <input type="password" id="reg-pass" oninput="checkStrength(this.value)">
+                    <div class="strength-meter"><div id="strength-bar"></div></div>
                 </div>
-                <div class="password-strength"><div id="strength-bar" class="strength-bar"></div></div>
-                <button class="btn-auth" onclick="handleSignup()" style="margin-top:16px;">Finalizar Cadastro</button>
-                <p class="auth-link">Já tem conta? <a href="#" onclick="toggleAuth('login')">Login</a></p>
+                <button class="btn-primary" onclick="handleSignup()">Finalizar Cadastro</button>
+                <p class="switch-auth">Já possui conta? <a href="javascript:toggleAuth('login')">Fazer Login</a></p>
             </div>
         </div>
-    </div>
+    </section>
 
-    <header id="sys-header" style="display: none;">
-        <div class="header-left">
-            <div class="header-brand">EEEP Miguel Gurgel<small>Sistema de Gestão Escolar</small></div>
-        </div>
-        <div class="header-actions">
-            <button class="dark-toggle" onclick="toggleDarkMode()" id="darkModeBtn">🌙</button>
-            <div class="user-info">
-                <span id="user-display-name"></span>
-                <button class="btn-logout" onclick="logout()">Sair</button>
-            </div>
-        </div>
-    </header>
-
-    <main id="app-content" style="display: none;">
-        <div id="main-menu" class="section active">
-            <div class="welcome-box">
-                <h1>Painel de Controle</h1>
-                <p>Selecione uma área para gerenciar</p>
-            </div>
-            <div class="menu-cards">
-                <div class="card" onclick="showSection('reservas')">
-                    <div class="card-icon">🏫</div>
-                    <h3>Alocação de Labs</h3>
-                    <p>Agendamento por calendário real.</p>
-                </div>
-                <div class="card" onclick="showSection('monitoria')">
-                    <div class="card-icon">📋</div>
-                    <h3>Monitoria</h3>
-                    <p>Escala de postos e alunos.</p>
+    <div id="dashboard" style="display: none;">
+        <header class="main-header">
+            <div class="brand">
+                <span class="badge">SGE</span>
+                <div class="brand-text">
+                    <h1>EEEP Miguel Gurgel</h1>
+                    <small>Sistema de Gestão Escolar</small>
                 </div>
             </div>
-        </div>
-
-        <section id="sec-reservas" class="section">
-            <div class="module-header">
-                <button class="btn-back" onclick="showSection('menu')">← Voltar</button>
-                <div class="lab-selector">
-                    <button class="btn-lab active" onclick="changeLab('Lab Informática', this)">💻 Informática</button>
-                    <button class="btn-lab" onclick="changeLab('Lab Hardware', this)">🛠️ Hardware</button>
-                    <button class="btn-lab" onclick="changeLab('Lab Multimídia', this)">🎬 Multimídia</button>
+            <div class="header-tools">
+                <button class="theme-btn" onclick="toggleTheme()" id="theme-icon">🌙</button>
+                <div class="user-profile">
+                    <span id="display-user-name">Usuário</span>
+                    <button class="logout-btn" onclick="logout()">Sair</button>
                 </div>
             </div>
+        </header>
 
-            <div class="reservation-layout">
-                <aside class="calendar-widget">
-                    <div class="calendar-header">
-                        <button class="btn-cal" onclick="changeMonth(-1)">❮</button>
-                        <h3 id="monthYearDisplay">Mês Ano</h3>
-                        <button class="btn-cal" onclick="changeMonth(1)">❯</button>
+        <main class="content-wrapper">
+            <nav class="side-nav">
+                <button class="nav-item active" onclick="navTo('menu', this)">🏠 Dashboard</button>
+                <button class="nav-item" onclick="navTo('reservas', this)">🏫 Laboratórios</button>
+                <button class="nav-item" onclick="navTo('monitoria', this)">📋 Monitoria</button>
+            </nav>
+
+            <section class="main-viewport">
+                <div id="view-menu" class="view active">
+                    <div class="welcome-hero">
+                        <h2>Olá, <span id="user-greeting">Servidor</span>! 👋</h2>
+                        <p>Gerencie os recursos da escola de forma simplificada.</p>
                     </div>
-                    <div class="calendar-weekdays">
-                        <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                    <div class="quick-grid">
+                        <div class="q-card" onclick="navTo('reservas')">
+                            <span class="icon">💻</span>
+                            <h3>Reservar Lab</h3>
+                            <p>Agende horários para suas aulas práticas.</p>
+                        </div>
+                        <div class="q-card" onclick="navTo('monitoria')">
+                            <span class="icon">🔍</span>
+                            <h3>Monitoria</h3>
+                            <p>Confira a escala diária dos alunos.</p>
+                        </div>
                     </div>
-                    <div id="calendarDays" class="calendar-days"></div>
-                </aside>
+                </div>
 
-                <div class="schedule-container">
-                    <div class="schedule-header">
-                        <h3 id="selectedDateDisplay">Selecione uma data</h3>
-                        <button onclick="clearDay()" class="btn-clear">🧹 Limpar Dia</button>
+                <div id="view-reservas" class="view">
+                    <div class="module-ctrl">
+                        <div class="lab-tabs">
+                            <button class="lab-btn active" onclick="setLab('Informática', this)">💻 Informática</button>
+                            <button class="lab-btn" onclick="setLab('Hardware', this)">🛠️ Hardware</button>
+                            <button class="lab-btn" onclick="setLab('Multimídia', this)">🎬 Multimídia</button>
+                        </div>
                     </div>
-                    <div class="table-container">
-                        <table>
+
+                    <div class="app-grid">
+                        <aside class="calendar-panel">
+                            <div class="cal-header">
+                                <button onclick="changeMonth(-1)">❮</button>
+                                <h4 id="cal-month-year">Mês 202X</h4>
+                                <button onclick="changeMonth(1)">❯</button>
+                            </div>
+                            <div class="cal-week">
+                                <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                            </div>
+                            <div id="cal-days" class="cal-days-grid"></div>
+                        </aside>
+
+                        <div class="schedule-panel">
+                            <div class="panel-header">
+                                <h3 id="current-date-label">Selecione uma data</h3>
+                                <button class="btn-outline-red" onclick="clearDayData()">Limpar Dia</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Horário</th>
+                                            <th>Professor / Atividade</th>
+                                            <th>Turma</th>
+                                            <th>Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reserva-rows"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-monitoria" class="view">
+                    <div class="panel-header">
+                        <h2>Escala de Monitoria - Postos Ativos</h2>
+                    </div>
+                    <div class="table-responsive card-style">
+                        <table class="modern-table">
                             <thead>
-                                <tr>
-                                    <th>Horário</th>
-                                    <th>Professor / Responsável</th>
-                                    <th>Turma</th>
-                                    <th>Ação</th>
-                                </tr>
+                                <tr><th>Posto de Apoio</th><th>Aluno Monitor</th><th>Turma</th><th>Ação</th></tr>
                             </thead>
-                            <tbody id="tableBody"></tbody>
+                            <tbody id="monitoria-rows"></tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <section id="sec-monitoria" class="section">
-            <div class="module-header">
-                <button class="btn-back" onclick="showSection('menu')">← Voltar</button>
-                <h2>📋 Escala de Monitoria</h2>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr><th>Posto</th><th>Aluno Monitor</th><th>Turma</th><th>Ação</th></tr>
-                    </thead>
-                    <tbody id="tableBodyMonitoria"></tbody>
-                </table>
-            </div>
-        </section>
-    </main>
+            </section>
+        </main>
+    </div>
 
     <script src="scripts/index.js"></script>
 </body>
