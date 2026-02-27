@@ -1,150 +1,175 @@
-const state = {
-    user: null,
-    currentLab: "Informática",
-    selectedDate: new Date(),
-    calendarDate: new Date(),
-    config: {
-        slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00 (Intervalo)", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
-        postos: ["Fila do Intervalo", "Refeitório (Suco)", "Refeitório (Pratos)", "Portaria Almoço", "Pátio Central"]
-    }
+const CONFIG = {
+    slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
+    postosMonitoria: ["Fila do Intervalo", "Refeitório (Suco)", "Refeitório (Pratos)", "Portaria Almoço", "Pátio Central"],
 };
+
+let currentLab = "Lab Informática";
+let calendarViewDate = new Date();
+let selectedDateStr = "";
 
 const storage = {
-    save: (key, val) => localStorage.setItem(`mg_sge_${key}`, JSON.stringify(val)),
-    get: (key) => JSON.parse(localStorage.getItem(`mg_sge_${key}`))
+    set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+    get: (key) => JSON.parse(localStorage.getItem(key))
 };
 
-function initApp() {
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'flex';
-    
-    const u = state.user;
-    document.getElementById('display-user-name').innerText = u.nome;
-    document.getElementById('display-user-cargo').innerText = u.cargo;
-    document.getElementById('user-greeting').innerText = u.nome.split(' ')[0];
-    
-    const initials = u.nome.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
-    document.getElementById('user-initials').innerText = initials;
+// === AUXILIARES ===
+function showToast(msg) {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+    c.appendChild(t); setTimeout(() => t.remove(), 3000);
+}
 
+const formatDateKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+// === AUTENTICAÇÃO ===
+function toggleAuth(type) {
+    document.getElementById('login-form').style.display = type === 'signup' ? 'none' : 'block';
+    document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
+}
+
+function handleLogin() {
+    const email = document.getElementById('login-email').value.toLowerCase().trim();
+    const pass = document.getElementById('login-pass').value;
+    const user = storage.get(`user-${email}`);
+
+    if (user && user.pass === pass) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('sys-header').style.display = 'flex';
+        document.getElementById('app-content').style.display = 'block';
+        document.getElementById('user-display-name').innerText = user.nome;
+        showSection('menu');
+    } else { showToast("Credenciais inválidas"); }
+}
+
+function handleSignup() {
+    const email = document.getElementById('reg-email').value;
+    const nome = document.getElementById('reg-nome').value;
+    const pass = document.getElementById('reg-pass').value;
+    if(pass.length < 6) return showToast("Senha curta demais");
+    storage.set(`user-${email}`, { nome, pass });
+    showToast("Cadastrado! Faça login.");
+    toggleAuth('login');
+}
+
+function logout() { location.reload(); }
+
+// === NAVEGAÇÃO ===
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id === 'menu' ? 'main-menu' : `sec-${id}`).classList.add('active');
+    if(id === 'reservas') {
+        if(!selectedDateStr) selectDate(new Date());
+        renderCalendar();
+    } else if(id === 'monitoria') {
+        renderMonitoria();
+    }
+}
+
+// === CALENDÁRIO ===
+function changeMonth(dir) {
+    calendarViewDate.setMonth(calendarViewDate.getMonth() + dir);
     renderCalendar();
-    renderSchedule();
+}
+
+function selectDate(date) {
+    selectedDateStr = formatDateKey(date);
+    document.getElementById('selectedDateDisplay').innerText = date.toLocaleDateString('pt-BR', { dateStyle: 'long' });
+    renderCalendar();
+    renderTable();
 }
 
 function renderCalendar() {
-    const container = document.getElementById('cal-days');
-    const display = document.getElementById('cal-month-year');
-    container.innerHTML = "";
-
-    const year = state.calendarDate.getFullYear();
-    const month = state.calendarDate.getMonth();
-    display.innerText = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(state.calendarDate);
+    const year = calendarViewDate.getFullYear();
+    const month = calendarViewDate.getMonth();
+    const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    
+    document.getElementById('monthYearDisplay').innerText = `${monthNames[month]} ${year}`;
+    const container = document.getElementById('calendarDays');
+    container.innerHTML = '';
 
     const firstDay = new Date(year, month, 1).getDay();
     const lastDay = new Date(year, month + 1, 0).getDate();
 
-    for(let i=0; i<firstDay; i++) container.innerHTML += `<div class="day empty"></div>`;
+    for(let i=0; i<firstDay; i++) container.innerHTML += '<div class="cal-day empty"></div>';
 
-    for(let d=1; d<=lastDay; d++) {
-        const dateObj = new Date(year, month, d);
-        const dateStr = dateObj.toISOString().split('T')[0];
-        const isSelected = dateStr === state.selectedDate.toISOString().split('T')[0];
+    for(let i=1; i<=lastDay; i++) {
+        const d = new Date(year, month, i);
+        const dStr = formatDateKey(d);
+        const hasBooking = CONFIG.slots.some(s => storage.get(`res-${currentLab}-${dStr}-${s}`));
         
         const div = document.createElement('div');
-        div.className = `day ${isSelected ? 'active' : ''}`;
-        div.innerText = d;
-        div.onclick = () => {
-            state.selectedDate = dateObj;
-            renderCalendar();
-            renderSchedule();
-        };
+        div.className = `cal-day ${dStr === selectedDateStr ? 'active' : ''} ${hasBooking ? 'has-booking' : ''}`;
+        div.innerText = i;
+        div.onclick = () => selectDate(d);
         container.appendChild(div);
     }
 }
 
-function renderSchedule() {
-    const tbody = document.getElementById('reserva-rows');
-    const dateKey = state.selectedDate.toISOString().split('T')[0];
-    document.getElementById('current-date-label').innerText = state.selectedDate.toLocaleDateString('pt-BR', { dateStyle: 'long' });
-    
-    tbody.innerHTML = "";
-    state.config.slots.forEach((slot, i) => {
-        const key = `res_${state.currentLab}_${dateKey}_${i}`;
-        const saved = storage.get(key) || { prof: "", turma: "" };
-        const isInterval = slot.includes("Intervalo");
+// === RESERVAS ===
+function changeLab(lab, btn) {
+    currentLab = lab;
+    document.querySelectorAll('.btn-lab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCalendar();
+    renderTable();
+}
 
-        const tr = document.createElement('tr');
-        if(isInterval) {
-            tr.innerHTML = `<td colspan="4" style="text-align:center; opacity:0.5; font-size:0.8rem">☕ Intervalo de Almoço</td>`;
+function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    CONFIG.slots.forEach((slot, i) => {
+        const isLunch = slot.includes("12:00");
+        const saved = storage.get(`res-${currentLab}-${selectedDateStr}-${slot}`) || { prof: '', turma: '' };
+        const row = document.createElement('tr');
+        if (isLunch) {
+            row.innerHTML = `<td colspan="4" style="text-align:center; background:#fef3c7; color:#d97706; font-weight:700">🍱 ALMOÇO</td>`;
         } else {
-            tr.innerHTML = `
+            row.innerHTML = `
                 <td><strong>${slot}</strong></td>
-                <td><input type="text" value="${saved.prof}" onchange="saveReserva(${i}, 'prof', this.value)"></td>
-                <td><input type="text" value="${saved.turma}" onchange="saveReserva(${i}, 'turma', this.value.toUpperCase())"></td>
-                <td><span class="badge ${saved.prof ? 'booked' : 'free'}">${saved.prof ? 'Reservado' : 'Disponível'}</span></td>
+                <td><input type="text" id="p-${i}" value="${saved.prof}"></td>
+                <td><input type="text" id="t-${i}" value="${saved.turma}"></td>
+                <td><button class="btn-save" onclick="saveBooking('${slot}', ${i})">Salvar</button></td>
             `;
         }
-        tbody.appendChild(tr);
+        tbody.appendChild(row);
     });
 }
 
-function saveReserva(index, field, value) {
-    const dateKey = state.selectedDate.toISOString().split('T')[0];
-    const key = `res_${state.currentLab}_${dateKey}_${index}`;
-    let data = storage.get(key) || { prof: "", turma: "" };
-    data[field] = value;
-    storage.save(key, data);
-    renderSchedule();
-}
-
-function navTo(viewId, btn) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(`view-${viewId}`).classList.add('active');
-    
-    const titles = { 'menu': 'Dashboard', 'reservas': 'Laboratórios', 'monitoria': 'Monitoria' };
-    document.getElementById('page-title').innerText = titles[viewId];
-    
-    if(btn) {
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        btn.classList.add('active');
-    }
-    if(viewId === 'monitoria') renderMonitoria();
-}
-
-function changeMonth(dir) {
-    state.calendarDate.setMonth(state.calendarDate.getMonth() + dir);
+function saveBooking(slot, i) {
+    const data = { prof: document.getElementById(`p-${i}`).value, turma: document.getElementById(`t-${i}`).value.toUpperCase() };
+    storage.set(`res-${currentLab}-${selectedDateStr}-${slot}`, data);
+    showToast("Reserva salva!");
     renderCalendar();
 }
 
-function setLab(lab, btn) {
-    state.currentLab = lab;
-    document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderSchedule();
+function clearDay() {
+    if(!confirm("Limpar tudo?")) return;
+    CONFIG.slots.forEach(s => localStorage.removeItem(`res-${currentLab}-${selectedDateStr}-${s}`));
+    renderTable(); renderCalendar();
 }
 
-function toggleTheme() {
-    document.body.classList.toggle('dark-theme');
-    const icon = document.getElementById('theme-icon');
-    icon.className = document.body.classList.contains('dark-theme') ? 'bi bi-sun' : 'bi bi-moon-stars';
+// === MONITORIA ===
+function renderMonitoria() {
+    const tbody = document.getElementById('tableBodyMonitoria');
+    tbody.innerHTML = '';
+    CONFIG.postosMonitoria.forEach((p, i) => {
+        const saved = storage.get(`mon-${p}`) || { aluno: '', turma: '' };
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${p}</strong></td>
+                <td><input type="text" id="mn-${i}" value="${saved.aluno}"></td>
+                <td><input type="text" id="mt-${i}" value="${saved.turma}"></td>
+                <td><button class="btn-save" onclick="saveMon('${p}', ${i})">Salvar</button></td>
+            </tr>`;
+    });
 }
 
-function handleLogin() {
-    const email = document.getElementById('login-email').value.toLowerCase();
-    const user = storage.get(`user_${email}`);
-    if(user) { state.user = user; initApp(); } 
-    else { alert("Simulação: Use um e-mail cadastrado."); }
+function saveMon(p, i) {
+    storage.set(`mon-${p}`, { aluno: document.getElementById(`mn-${i}`).value, turma: document.getElementById(`mt-${i}`).value });
+    showToast("Escala salva!");
 }
 
-function handleSignup() {
-    const email = document.getElementById('reg-email').value.toLowerCase();
-    const user = { nome: document.getElementById('reg-nome').value, cargo: document.getElementById('reg-cargo').value, email };
-    storage.save(`user_${email}`, user);
-    alert("Conta criada!");
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    document.getElementById('darkModeBtn').innerText = document.body.classList.contains('dark') ? '☀️' : '🌙';
 }
-
-function toggleAuth(type) {
-    document.getElementById('login-form').style.display = type === 'login' ? 'block' : 'none';
-    document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
-}
-
-function logout() { location.reload(); }
