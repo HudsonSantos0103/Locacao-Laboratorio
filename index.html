@@ -1,158 +1,31 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGE | EEEP Miguel Gurgel</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="estilos/style.css">
-</head>
-<body class="light-theme">
-    <div id="toast-container"></div>
-
-    <section id="auth-screen">
-        <div class="glass-card auth-anim">
-            <div class="auth-header">
-                <div class="logo-box">MG</div>
-                <h2>Bem-vindo de volta</h2>
-                <p>Acesse o portal de gestão Miguel Gurgel</p>
-            </div>
-
-            <div id="login-form">
-                <div class="input-field">
-                    <i class="bi bi-envelope"></i>
-                    <input type="text" id="login-email" placeholder="E-mail ou Matrícula">
-                </div>
-                <div class="input-field">
-                    <i class="bi bi-lock"></i>
-                    <input type="password" id="login-pass" placeholder="Sua senha">
-                    <button class="eye-btn" onclick="togglePassword('login-pass')"><i class="bi bi-eye"></i></button>
-                </div>
-                <button class="btn-primary-glow" onclick="handleLogin()">Entrar na Plataforma</button>
-                <p class="auth-footer">Não tem conta? <a href="#" onclick="toggleAuth('signup')">Solicitar acesso</a></p>
-            </div>
-
-            <div id="signup-form" style="display: none;">
-                <div class="input-field"><i class="bi bi-person"></i><input type="text" id="reg-nome" placeholder="Nome Completo"></div>
-                <div class="input-field">
-                    <i class="bi bi-briefcase"></i>
-                    <select id="reg-cargo">
-                        <option value="Professor">Professor(a)</option>
-                        <option value="Coordenador">Coordenador(a)</option>
-                    </select>
-                </div>
-                <div class="input-field"><i class="bi bi-envelope-at"></i><input type="email" id="reg-email" placeholder="E-mail Institucional"></div>
-                <div class="input-field"><i class="bi bi-shield-lock"></i><input type="password" id="reg-pass" placeholder="Senha (mín. 6 dígitos)"></div>
-                <button class="btn-primary-glow" onclick="handleSignup()">Criar minha conta</button>
-                <p class="auth-footer">Já é cadastrado? <a href="#" onclick="toggleAuth('login')">Fazer Login</a></p>
-            </div>
-        </div>
-    </section>
-
-    <div id="dashboard" style="display: none;">
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="logo-sm">MG</div>
-                <span>SGE</span>
-            </div>
-            <nav class="nav-menu">
-                <button class="nav-link active" onclick="navTo('menu', this)"><i class="bi bi-grid-1x2-fill"></i> <span>Dashboard</span></button>
-                <button class="nav-link" onclick="navTo('reservas', this)"><i class="bi bi-calendar-event"></i> <span>Laboratórios</span></button>
-                <button class="nav-link" onclick="navTo('monitoria', this)"><i class="bi bi-clipboard-check"></i> <span>Monitoria</span></button>
-            </nav>
-            <div class="sidebar-footer">
-                <button class="btn-icon" onclick="toggleTheme()"><i class="bi bi-moon-stars" id="theme-icon"></i></button>
-                <button class="btn-icon" onclick="logout()"><i class="bi bi-box-arrow-right"></i></button>
-            </div>
-        </aside>
-
-        <main class="main-content">
-            <header class="top-bar">
-                <div class="page-info">
-                    <h1 id="page-title">Dashboard</h1>
-                    <p id="page-subtitle">Visão geral do sistema</p>
-                </div>
-                <div class="user-pill">
-                    <div class="user-avatar" id="user-initials">AD</div>
-                    <div class="user-data">
-                        <strong id="display-user-name">Usuário</strong>
-                        <span id="display-user-cargo">Professor</span>
-                    </div>
-                </div>
-            </header>
-
-            <div id="view-menu" class="view active">
-                <div class="hero-card">
-                    <h2>Bem-vindo ao Novo SGE, <span id="user-greeting">Servidor</span>!</h2>
-                    <p>Otimize seu tempo com nossa nova interface de agendamentos.</p>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card" onclick="navTo('reservas')">
-                        <div class="stat-icon lab"><i class="bi bi-pc-display"></i></div>
-                        <div class="stat-text"><h3>Labs</h3><p>Reservar horários</p></div>
-                        <i class="bi bi-arrow-right-short arrow"></i>
-                    </div>
-                    <div class="stat-card" onclick="navTo('monitoria')">
-                        <div class="stat-icon mon"><i class="bi bi-people"></i></div>
-                        <div class="stat-text"><h3>Monitoria</h3><p>Escala diária</p></div>
-                        <i class="bi bi-arrow-right-short arrow"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-reservas" class="view">
-                <div class="action-bar">
-                    <div class="segmented-control">
-                        <button class="seg-btn active" onclick="setLab('Informática', this)">Informática</button>
-                        <button class="seg-btn" onclick="setLab('Hardware', this)">Hardware</button>
-                        <button class="seg-btn" onclick="setLab('Multimídia', this)">Multimídia</button>
-                    </div>
-                    <button class="btn-outline" onclick="clearDayData()"><i class="bi bi-trash3"></i> Limpar Dia</button>
-                </div>
-
-                <div class="booking-container">
-                    <aside class="cal-widget">
-                        <div class="cal-nav">
-                            <button onclick="changeMonth(-1)"><i class="bi bi-chevron-left"></i></button>
-                            <h4 id="cal-month-year">Janeiro 2026</h4>
-                            <button onclick="changeMonth(1)"><i class="bi bi-chevron-right"></i></button>
-                        </div>
-                        <div class="cal-grid-header">
-                            <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
-                        </div>
-                        <div id="cal-days" class="cal-days-body"></div>
-                    </aside>
-
-                    <section class="schedule-list">
-                        <div class="list-header">
-                            <i class="bi bi-calendar3"></i> <span id="current-date-label">Selecione uma data</span>
-                        </div>
-                        <div class="table-wrapper">
-                            <table class="clean-table">
-                                <thead>
-                                    <tr><th>Horário</th><th>Professor / Atividade</th><th>Turma</th><th>Status</th></tr>
-                                </thead>
-                                <tbody id="reserva-rows"></tbody>
-                            </table>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <div id="view-monitoria" class="view">
-                <div class="table-wrapper elevated">
-                    <table class="clean-table">
-                        <thead>
-                            <tr><th>Posto de Apoio</th><th>Aluno Monitor</th><th>Turma</th><th>Ação</th></tr>
-                        </thead>
-                        <tbody id="monitoria-rows"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+<section id="auth-screen" aria-labelledby="auth-title">
+  <div class="glass-card auth-anim">
+    <div class="auth-header">
+      <div class="logo-box" aria-label="Logo Miguel Gurgel">MG</div>
+      <h2 id="auth-title">Bem-vindo de volta</h2>
+      <p>Acesse o portal de gestão Miguel Gurgel</p>
     </div>
 
-    <script src="scripts/index.js"></script>
-</body>
-</html>
+    <!-- Login Form -->
+    <form id="login-form" novalidate>
+      <div class="input-field">
+        <i class="bi bi-envelope" aria-hidden="true"></i>
+        <input type="text" id="login-email" placeholder="E-mail ou Matrícula" required aria-label="E-mail ou matrícula">
+      </div>
+      <div class="input-field">
+        <i class="bi bi-lock" aria-hidden="true"></i>
+        <input type="password" id="login-pass" placeholder="Sua senha" required aria-label="Senha">
+        <button type="button" class="eye-btn" onclick="togglePassword('login-pass')" aria-label="Mostrar senha">
+          <i class="bi bi-eye" aria-hidden="true"></i>
+        </button>
+      </div>
+      <button type="submit" class="btn-primary-glow">Entrar na Plataforma</button>
+      <p class="auth-footer">Não tem conta? <a href="#" onclick="toggleAuth('signup')">Solicitar acesso</a></p>
+    </form>
+
+    <!-- Signup Form -->
+    <form id="signup-form" style="display: none;" novalidate>
+      <!-- ... campos ... -->
+    </form>
+  </div>
+</section>
