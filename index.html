@@ -1,427 +1,327 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Alocação — EEEP Comendador Miguel Gurgel</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão de Laboratórios</title>
+
 <style>
 :root{
-  --bg:#f7fbfe; --card:#ffffff; --muted:#6b7280; --accent:#f59e0b;
-  --primary:#0f172a; --success:#10b981; --radius:12px;
+  --primary:#0f172a;
+  --accent:#f59e0b;
+  --bg:#f1f5f9;
+  --white:#ffffff;
+  --border:#cbd5e1;
 }
-*{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-body{margin:0;background:var(--bg);color:var(--primary);min-height:100vh;padding:18px;}
-.app{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start;}
-.card{background:var(--card);border-radius:var(--radius);box-shadow:0 8px 20px rgba(15,23,42,0.06);padding:18px;}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
-.brand{font-weight:700}
-.small{font-size:13px;color:var(--muted)}
-.auth-section{max-width:400px;margin:40px auto}
-.input,select,button{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #e6eef6;font-size:14px}
-.row{display:flex;gap:8px}
-.row > *{flex:1}
-.btn{background:var(--primary);color:white;border:none;padding:10px 14px;border-radius:10px;cursor:pointer}
-.btn-ghost{background:transparent;border:1px solid #e6eef6}
-.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.lab-btn{padding:8px 12px;border-radius:999px;border:none;cursor:pointer;background:transparent}
-.lab-btn.active{background:var(--accent);color:white}
-.calendar{display:grid;grid-template-rows:auto 1fr;gap:12px}
-.cal-nav{display:flex;justify-content:space-between;align-items:center}
-.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.day{aspect-ratio:1/1;padding:8px;border-radius:8px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;font-size:13px}
-.day.inactive{opacity:0.36}
-.day.today{outline:2px solid rgba(245,158,11,0.18);box-shadow:inset 0 0 0 1px rgba(245,158,11,0.06)}
-.day.selected{background:linear-gradient(135deg,var(--accent),#d97706);color:white}
-.small-muted{font-size:12px;color:var(--muted)}
-.table{overflow:auto;margin-top:12px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px 8px;border-bottom:1px solid #eef6fb;text-align:left;font-size:14px}
-.lunch{background:rgba(245,158,11,0.08);text-align:center;font-weight:600;color:var(--accent)}
-.toast{position:fixed;right:18px;bottom:18px;background:var(--primary);color:white;padding:10px 14px;border-radius:10px}
-.footer-actions{display:flex;gap:8px; justify-content:flex-end;margin-top:12px}
-@media(max-width:880px){.app{grid-template-columns:1fr;padding:12px}}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, Helvetica, sans-serif}
+
+body{
+  background:var(--bg);
+  padding:20px;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+h1{
+  color:var(--primary);
+}
+
+select, input, button{
+  padding:8px;
+  border:1px solid var(--border);
+  border-radius:6px;
+}
+
+button{
+  background:var(--primary);
+  color:white;
+  cursor:pointer;
+}
+
+button:hover{
+  opacity:0.9;
+}
+
+.calendar{
+  background:var(--white);
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.calendar-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+}
+
+.day-name{
+  text-align:center;
+  font-weight:bold;
+  padding:5px;
+}
+
+.day{
+  background:var(--bg);
+  padding:15px;
+  min-height:80px;
+  border-radius:8px;
+  cursor:pointer;
+  position:relative;
+}
+
+.day:hover{
+  background:#e2e8f0;
+}
+
+.today{
+  border:2px solid var(--accent);
+}
+
+.badge{
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  background:var(--accent);
+  color:white;
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:10px;
+}
+
+.reservas{
+  margin-top:20px;
+  background:var(--white);
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.reserva-item{
+  display:flex;
+  justify-content:space-between;
+  padding:8px;
+  border-bottom:1px solid var(--border);
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="brand">EEEP Comendador Miguel Gurgel <div class="small">Sistema de Alocação</div></div>
-  <div id="session-area" class="small-muted"></div>
-</div>
+<div class="container">
 
-<!-- Layout -->
-<div class="app">
+<header>
+  <h1>Gestão de Laboratórios</h1>
+  <select id="labSelect">
+    <option>Lab Informática</option>
+    <option>Lab Hardware</option>
+    <option>Lab Multimídia</option>
+  </select>
+</header>
 
-  <!-- left: calendário + controles -->
-  <aside class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <strong>Calendário</strong>
-      <small class="small-muted" id="current-month-label"></small>
-    </div>
-
-    <div class="calendar" aria-label="Calendário mensal">
-      <div class="cal-nav">
-        <div style="display:flex;gap:8px">
-          <button class="btn-ghost" id="prevMonthBtn">&larr;</button>
-          <button class="btn-ghost" id="nextMonthBtn">&rarr;</button>
-        </div>
-        <div class="small-muted" id="monthYear"></div>
-      </div>
-
-      <div class="month-grid card" id="monthGrid" style="padding:8px"></div>
-    </div>
-
-    <hr style="margin:12px 0;border:none;border-top:1px solid #eef6fb">
-
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div class="small-muted">Laboratórios</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap" id="labBtns"></div>
-
-      <div style="margin-top:10px">
-        <div class="small-muted">Turma (validação automática)</div>
-        <input id="turmaInput" class="input" placeholder="Ex: DS1, MULTI2" />
-      </div>
-
-      <div style="margin-top:8px">
-        <button class="btn" id="exportBtn">Exportar JSON</button>
-        <input type="file" id="importFile" accept="application/json" style="display:none"/>
-        <button class="btn-ghost" id="importBtn">Importar JSON</button>
-      </div>
-
-      <div style="margin-top:8px">
-        <small class="small-muted">Atalhos</small>
-        <div class="small-muted" style="font-size:13px">Clique em um dia -> preencha professor + turma -> salvar</div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- main: reserva por horário -->
-  <main class="card" aria-live="polite">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div>
-        <strong>Alocação de Laboratórios</strong>
-        <div class="small-muted" id="selectedDateLabel">Selecione uma data no calendário</div>
-      </div>
-      <div>
-        <button class="btn-ghost" id="toggleAuthBtn">Entrar / Cadastrar</button>
-      </div>
-    </div>
-
-    <div class="controls" style="margin-bottom:6px">
-      <input id="profInput" class="input" placeholder="Nome do professor" />
-      <button class="btn" id="fillSlotBtn">Preencher todos (com este prof)</button>
-    </div>
-
-    <div class="table">
-      <table aria-describedby="slots-list">
-        <thead>
-          <tr><th>Horário</th><th>Professor</th><th>Turma</th><th>Ação</th></tr>
-        </thead>
-        <tbody id="slotsBody"></tbody>
-      </table>
-    </div>
-
-    <div class="footer-actions">
-      <button class="btn-ghost" id="clearDayBtn">Limpar dia</button>
-      <button class="btn-ghost" id="copyPrevDayBtn">Copiar dia anterior</button>
-    </div>
-  </main>
-</div>
-
-<!-- auth modal (simple) -->
-<div id="authModal" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.45);align-items:center;justify-content:center">
-  <div style="background:white;padding:18px;border-radius:12px;max-width:420px;width:92%">
-    <h3 style="margin:0 0 8px">Entrar / Cadastrar</h3>
-    <div style="display:grid;gap:8px">
-      <input id="regNome" class="input" placeholder="Nome completo" />
-      <input id="regEmail" class="input" placeholder="E-mail (ex: prof@escola.edu.br)" />
-      <select id="regCargo" class="input"><option>Professor</option><option>Coordenador</option></select>
-      <input id="regPass" class="input" placeholder="Senha (mín 6)" type="password"/>
-      <div style="display:flex;gap:8px">
-        <button class="btn" id="regBtn">Cadastrar</button>
-        <button class="btn-ghost" id="closeAuth">Fechar</button>
-      </div>
-    </div>
+<div class="calendar">
+  <div class="calendar-header">
+    <button onclick="prevMonth()">◀</button>
+    <h2 id="monthYear"></h2>
+    <button onclick="nextMonth()">▶</button>
   </div>
+
+  <div class="calendar-grid" id="calendar"></div>
 </div>
 
-<div id="toast" style="display:none" class="toast">OK</div>
+<div class="reservas">
+  <h3 id="selectedDateTitle">Selecione um dia</h3>
+  <div id="reservaList"></div>
+
+  <h4 style="margin-top:15px;">Nova Reserva</h4>
+  <input type="text" id="professor" placeholder="Professor">
+  <input type="text" id="turma" placeholder="Turma">
+  <select id="horario">
+    <option>07:20 - 08:10</option>
+    <option>08:10 - 09:00</option>
+    <option>09:20 - 10:10</option>
+    <option>10:10 - 11:00</option>
+    <option>11:00 - 11:50</option>
+    <option>13:10 - 14:00</option>
+    <option>14:00 - 14:50</option>
+    <option>15:10 - 16:00</option>
+  </select>
+  <button onclick="salvarReserva()">Salvar</button>
+</div>
+
+</div>
 
 <script>
-/* ===== CONFIG ===== */
-const CONFIG = {
-  slots: ["07:20 - 08:10","08:10 - 09:00","09:20 - 10:10","10:10 - 11:00","11:00 - 11:50","12:00 - 13:00","13:10 - 14:00","14:00 - 14:50","15:10 - 16:00","16:00 - 16:50"],
-  postosMonitoria: ["Fila do Intervalo","Refeitório (Suco)","Refeitório (Pratos)"],
-  turmasValidas: ["DS1","DS2","DS3","MULTI1","MULTI2","MULTI3","CTB1","CTB2","CTB3","RDC1","RDC2","RDC3"],
-  labs: ["Lab Informática","Lab Hardware","Lab Multimídia"]
-};
+let currentDate = new Date();
+let selectedDate = null;
 
-/* ===== STORAGE HELPERS ===== */
-const storage = {
-  set: (k,v) => localStorage.setItem(k, JSON.stringify(v)),
-  get: (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch(e){return null} },
-  rm: (k) => localStorage.removeItem(k)
-};
-
-/* ===== SESSION / AUTH (simples) ===== */
-function openAuth(){ document.getElementById('authModal').style.display='flex' }
-function closeAuth(){ document.getElementById('authModal').style.display='none' }
-document.getElementById('toggleAuthBtn').onclick = openAuth;
-document.getElementById('closeAuth').onclick = closeAuth;
-document.getElementById('regBtn').onclick = () => {
-  const email = document.getElementById('regEmail').value.toLowerCase().trim();
-  const nome = document.getElementById('regNome').value.trim();
-  const pass = document.getElementById('regPass').value;
-  const cargo = document.getElementById('regCargo').value;
-  if(!email || !nome || pass.length<6){toast('Dados inválidos'); return;}
-  storage.set(`user-${email}`, {nome,cargo,pass});
-  storage.set('session', {email});
-  updateSessionArea();
-  closeAuth();
-  toast('Cadastro e login concluídos!');
-};
-function updateSessionArea(){
-  const s = storage.get('session');
-  const el = document.getElementById('session-area');
-  if(s && storage.get(`user-${s.email}`)){
-    const u = storage.get(`user-${s.email}`);
-    el.innerText = `${u.cargo}: ${u.nome}`;
-  } else {
-    el.innerText = 'Não autenticado';
-  }
+function formatDate(date){
+  return date.toISOString().split('T')[0];
 }
-updateSessionArea();
 
-/* ===== UI state ===== */
-let currentLab = CONFIG.labs[0];
-let viewYear = new Date().getFullYear(), viewMonth = new Date().getMonth();
-let selectedDate = null; // ISO yyyy-mm-dd
+function getReservas(date){
+  const lab = document.getElementById("labSelect").value;
+  const prefix = `reserva::${lab}::${date}`;
+  return Object.keys(localStorage)
+    .filter(k => k.startsWith(prefix))
+    .map(k => JSON.parse(localStorage.getItem(k)));
+}
 
-/* ===== Helpers ===== */
-function isoDateFrom(y,m,d){ return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}` }
-function weekdayName(date){ return date.toLocaleDateString('pt-BR',{weekday:'long'}) }
-function toast(msg,ms=2200){ const t=document.getElementById('toast'); t.innerText=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',ms) }
+function countReservas(date){
+  return getReservas(date).length;
+}
 
-/* ===== Build lab buttons ===== */
-const labBtns = document.getElementById('labBtns');
-CONFIG.labs.forEach(l=>{
-  const b = document.createElement('button'); b.className='lab-btn'; b.innerText = l;
-  b.onclick = ()=>{ currentLab = l; document.querySelectorAll('.lab-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderSlots(); };
-  labBtns.appendChild(b);
-});
-document.querySelectorAll('.lab-btn')[0].classList.add('active');
-
-/* ===== Calendar rendering ===== */
-const monthGrid = document.getElementById('monthGrid');
-const monthYear = document.getElementById('monthYear');
 function renderCalendar(){
-  monthGrid.innerHTML='';
-  const first = new Date(viewYear,viewMonth,1);
-  const last = new Date(viewYear,viewMonth+1,0);
-  const startWeekday = first.getDay(); // 0=Sun
-  const daysInMonth = last.getDate();
-  monthYear.innerText = first.toLocaleDateString('pt-BR',{month:'long', year:'numeric'});
-  // weekday headers
-  const names = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  names.forEach(n=>{
-    const h = document.createElement('div'); h.className='small-muted'; h.style.textAlign='center'; h.style.fontSize='12px'; h.innerText=n; monthGrid.appendChild(h);
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML="";
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month+1, 0);
+
+  document.getElementById("monthYear").innerText =
+    firstDay.toLocaleString("pt-BR",{month:"long",year:"numeric"});
+
+  const dayNames = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  dayNames.forEach(d=>{
+    const el=document.createElement("div");
+    el.className="day-name";
+    el.innerText=d;
+    calendar.appendChild(el);
   });
-  // fill leading blanks
-  for(let i=0;i<startWeekday;i++){
-    const d = document.createElement('div'); d.className='day inactive'; monthGrid.appendChild(d);
+
+  for(let i=0;i<firstDay.getDay();i++){
+    calendar.appendChild(document.createElement("div"));
   }
-  // days
-  for(let d=1; d<=daysInMonth; d++){
-    const dateObj = new Date(viewYear,viewMonth,d);
-    const iso = isoDateFrom(viewYear, viewMonth+1, d);
-    const el = document.createElement('button');
-    el.className='day';
-    if(new Date().toDateString() === dateObj.toDateString()) el.classList.add('today');
-    const label = document.createElement('div'); label.style.fontWeight='600'; label.innerText = d;
-    const sub = document.createElement('div'); sub.className='small-muted'; sub.style.marginTop='6px'; sub.style.fontSize='12px';
-    // show a tiny count of bookings that day for current lab
-    const bookings = countBookingsForDay(iso);
-    sub.innerText = bookings ? `${bookings} reserva(s)` : '';
-    el.appendChild(label); el.appendChild(sub);
-    el.onclick = ()=>{ selectDate(iso) };
-    monthGrid.appendChild(el);
+
+  for(let day=1;day<=lastDay.getDate();day++){
+    const dateObj = new Date(year, month, day);
+    const iso = formatDate(dateObj);
+
+    const el=document.createElement("div");
+    el.className="day";
+    el.innerText=day;
+
+    if(formatDate(new Date())===iso){
+      el.classList.add("today");
+    }
+
+    const count = countReservas(iso);
+    if(count>0){
+      const badge=document.createElement("div");
+      badge.className="badge";
+      badge.innerText=count;
+      el.appendChild(badge);
+    }
+
+    el.onclick=()=>{
+      selectedDate=iso;
+      renderReservas();
+    };
+
+    calendar.appendChild(el);
   }
-  // trailing blanks to fill grid
-  const totalCells = 7 + startWeekday + daysInMonth; // header + cells
-  const rem = (7 - (totalCells % 7)) % 7;
-  for(let i=0;i<rem;i++){ const d=document.createElement('div'); d.className='day inactive'; monthGrid.appendChild(d); }
-}
-function countBookingsForDay(iso){
-  let count=0;
-  CONFIG.slots.forEach(slot=>{
-    if(storage.get(keyFor(iso,slot))) count++;
-  });
-  return count;
 }
 
-/* ===== Select date and render slots ===== */
-function selectDate(iso){
-  selectedDate = iso;
-  document.getElementById('selectedDateLabel').innerText = `Data selecionada: ${iso} — ${weekdayName(new Date(iso))}`;
-  // highlight selected day in calendar
-  Array.from(monthGrid.querySelectorAll('.day')).forEach(btn=>{
-    btn.classList.remove('selected');
-    if(btn.firstChild && btn.firstChild.innerText == Number(iso.split('-')[2])) {
-      // ensure month/year matches current view
-      const d = Number(iso.split('-')[2]);
-      const dt = new Date(viewYear, viewMonth, d);
-      if(dt.getMonth() === viewMonth) btn.classList.add('selected');
-    }
-  });
-  renderSlots();
-}
+function renderReservas(){
+  if(!selectedDate) return;
 
-/* key generator */
-function keyFor(iso, slot){ return `res::${currentLab}::${iso}::${slot}` }
+  document.getElementById("selectedDateTitle").innerText =
+    "Reservas em "+selectedDate;
 
-/* render slots table */
-function renderSlots(){
-  const tbody = document.getElementById('slotsBody'); tbody.innerHTML='';
-  if(!selectedDate){ tbody.innerHTML = `<tr><td colspan="4" class="small-muted">Selecione uma data no calendário para ver/editar os horários.</td></tr>`; return; }
-  CONFIG.slots.forEach((slot,i)=>{
-    const isLunch = slot.includes('12:00');
-    const tr = document.createElement('tr');
-    if(isLunch){
-      tr.innerHTML = `<td class="lunch" colspan="4">🍱 INTERVALO DE ALMOÇO</td>`;
-    } else {
-      const saved = storage.get(keyFor(selectedDate,slot)) || {prof:'',turma:''};
-      tr.innerHTML = `
-        <td><strong>${slot}</strong></td>
-        <td><input id="p-${i}" class="input" value="${escapeHtml(saved.prof)}" placeholder="Professor"></td>
-        <td><input id="t-${i}" class="input" value="${escapeHtml(saved.turma)}" placeholder="Turma"></td>
-        <td><button class="btn" data-slot-index="${i}">Salvar</button></td>
-      `;
-    }
-    tbody.appendChild(tr);
-  });
-  // attach save handlers
-  tbody.querySelectorAll('button.btn').forEach(btn=>{
-    btn.onclick = (e)=>{ const i = btn.dataset.slotIndex; saveBooking(CONFIG.slots[i], i); };
+  const list=document.getElementById("reservaList");
+  list.innerHTML="";
+
+  const reservas=getReservas(selectedDate);
+
+  reservas.forEach(r=>{
+    const div=document.createElement("div");
+    div.className="reserva-item";
+    div.innerHTML=`
+      <span>${r.horario} - ${r.professor} (${r.turma})</span>
+      <button onclick="removerReserva('${r.horario}')">X</button>
+    `;
+    list.appendChild(div);
   });
 }
 
-/* save a booking */
-function saveBooking(slot, i){
-  if(!selectedDate){ toast('Selecione uma data antes'); return; }
-  const prof = document.getElementById(`p-${i}`).value.trim();
-  let turma = document.getElementById(`t-${i}`).value.trim().toUpperCase();
-  // validate turma
-  if(turma && !CONFIG.turmasValidas.includes(turma)){
-    if(!confirm(`Turma "${turma}" não é uma turma válida. Deseja salvar mesmo assim?`)) return;
+function salvarReserva(){
+  if(!selectedDate){
+    alert("Selecione um dia.");
+    return;
   }
-  const data = { prof, turma };
-  storage.set(keyFor(selectedDate,slot), data);
-  toast('Salvo!');
-  renderCalendar(); // atualiza contadores
-}
 
-/* utils */
-function escapeHtml(s){ return s ? s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') : '' }
+  const professor=document.getElementById("professor").value;
+  const turma=document.getElementById("turma").value;
+  const horario=document.getElementById("horario").value;
+  const lab=document.getElementById("labSelect").value;
 
-/* copy previous day */
-document.getElementById('copyPrevDayBtn').onclick = ()=>{
-  if(!selectedDate){ toast('Selecione uma data'); return; }
-  const d = new Date(selectedDate); d.setDate(d.getDate()-1);
-  const prevIso = isoDateFrom(d.getFullYear(), d.getMonth()+1, d.getDate());
-  CONFIG.slots.forEach(slot=>{
-    const prev = storage.get(`res::${currentLab}::${prevIso}::${slot}`);
-    if(prev) storage.set(keyFor(selectedDate, slot), prev);
-  });
-  renderSlots(); toast('Dados copiados do dia anterior');
-};
+  if(!professor || !turma){
+    alert("Preencha todos os campos.");
+    return;
+  }
 
-/* clear day */
-document.getElementById('clearDayBtn').onclick = ()=>{
-  if(!selectedDate){ toast('Selecione uma data'); return; }
-  if(!confirm('Limpar todas as reservas deste dia?')) return;
-  CONFIG.slots.forEach(slot => storage.rm(keyFor(selectedDate, slot)));
-  renderSlots(); renderCalendar(); toast('Dia limpo');
-};
+  const key=`reserva::${lab}::${selectedDate}::${horario}`;
 
-/* fill all professor field with text */
-document.getElementById('fillSlotBtn').onclick = ()=>{
-  const p = document.getElementById('profInput').value.trim();
-  if(!p){ toast('Informe o nome do professor para preencher'); return; }
-  CONFIG.slots.forEach((slot,i)=>{
-    if(!slot.includes('12:00')){
-      document.getElementById(`p-${i}`).value = p;
-      // auto-save (optional)
-      // saveBooking(slot,i);
-    }
-  });
-  toast('Campos preenchidos (salve individualmente ou modifique para auto-salvar)');
-};
+  if(localStorage.getItem(key)){
+    alert("Horário já reservado.");
+    return;
+  }
 
-/* export/import */
-document.getElementById('exportBtn').onclick = ()=>{
-  const data = {};
-  Object.keys(localStorage).forEach(k=>{
-    if(k.startsWith('res::') || k.startsWith('user-') || k==='session') data[k]=storage.get(k);
-  });
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download='reservas-export.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-  toast('Export iniciado');
-};
-document.getElementById('importBtn').onclick = ()=> document.getElementById('importFile').click();
-document.getElementById('importFile').onchange = (e)=>{
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader(); r.onload = (ev)=>{
-    try{
-      const obj = JSON.parse(ev.target.result);
-      Object.entries(obj).forEach(([k,v])=> localStorage.setItem(k, JSON.stringify(v)));
-      toast('Import concluído'); renderCalendar(); renderSlots(); updateSessionArea();
-    }catch(err){ toast('Arquivo inválido'); }
-  }; r.readAsText(f);
-};
+  localStorage.setItem(key,JSON.stringify({
+    professor,
+    turma,
+    horario
+  }));
 
-/* calendar navigation */
-document.getElementById('prevMonthBtn').onclick = ()=>{ viewMonth--; if(viewMonth<0){ viewMonth=11; viewYear--; } renderCalendar(); };
-document.getElementById('nextMonthBtn').onclick = ()=>{ viewMonth++; if(viewMonth>11){ viewMonth=0; viewYear++; } renderCalendar(); };
-
-/* helper: on load choose today */
-(function init(){
-  const now = new Date();
-  viewYear = now.getFullYear(); viewMonth = now.getMonth();
   renderCalendar();
-  selectDate(isoDateFrom(now.getFullYear(), now.getMonth()+1, now.getDate()));
-})();
-
-/* small utility: render slots when month changed or lab changed */
-window.addEventListener('storage', ()=>{ renderCalendar(); renderSlots(); });
-
-/* ESCAPE: simple keyboard shortcuts */
-document.addEventListener('keydown', (e)=>{
-  if(e.key==='e' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); document.getElementById('exportBtn').click(); }
-});
-
-/* accessibility: turma validation helper when typing */
-const turmaInput = document.getElementById('turmaInput');
-turmaInput.addEventListener('change', ()=>{
-  const v = turmaInput.value.trim().toUpperCase();
-  turmaInput.value = v;
-  if(v && !CONFIG.turmasValidas.includes(v)) {
-    if(!confirm(`Turma ${v} não consta entre turmas válidas. Deseja manter?`)) turmaInput.value='';
-  }
-});
-
-/* small helper to update counts when booking saved */
-function refreshAfterSave(){
-  renderSlots(); renderCalendar();
+  renderReservas();
 }
 
-/* adapt saveBooking to call refresh */
-const origSave = saveBooking;
-saveBooking = (slot,i) => { origSave(slot,i); refreshAfterSave(); };
+function removerReserva(horario){
+  const lab=document.getElementById("labSelect").value;
+  const key=`reserva::${lab}::${selectedDate}::${horario}`;
+  localStorage.removeItem(key);
+  renderCalendar();
+  renderReservas();
+}
 
-/* expose for debugging (dev) */
-window._CONFIG = CONFIG;
+function prevMonth(){
+  currentDate.setMonth(currentDate.getMonth()-1);
+  renderCalendar();
+}
+
+function nextMonth(){
+  currentDate.setMonth(currentDate.getMonth()+1);
+  renderCalendar();
+}
+
+document.getElementById("labSelect").addEventListener("change",()=>{
+  renderCalendar();
+  renderReservas();
+});
+
+renderCalendar();
 </script>
+
 </body>
 </html>
