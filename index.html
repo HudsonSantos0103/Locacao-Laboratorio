@@ -1,327 +1,162 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestão de Laboratórios</title>
-
-<style>
-:root{
-  --primary:#0f172a;
-  --accent:#f59e0b;
-  --bg:#f1f5f9;
-  --white:#ffffff;
-  --border:#cbd5e1;
-}
-
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, Helvetica, sans-serif}
-
-body{
-  background:var(--bg);
-  padding:20px;
-}
-
-.container{
-  max-width:1200px;
-  margin:auto;
-}
-
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-}
-
-h1{
-  color:var(--primary);
-}
-
-select, input, button{
-  padding:8px;
-  border:1px solid var(--border);
-  border-radius:6px;
-}
-
-button{
-  background:var(--primary);
-  color:white;
-  cursor:pointer;
-}
-
-button:hover{
-  opacity:0.9;
-}
-
-.calendar{
-  background:var(--white);
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.05);
-}
-
-.calendar-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:15px;
-}
-
-.calendar-grid{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:5px;
-}
-
-.day-name{
-  text-align:center;
-  font-weight:bold;
-  padding:5px;
-}
-
-.day{
-  background:var(--bg);
-  padding:15px;
-  min-height:80px;
-  border-radius:8px;
-  cursor:pointer;
-  position:relative;
-}
-
-.day:hover{
-  background:#e2e8f0;
-}
-
-.today{
-  border:2px solid var(--accent);
-}
-
-.badge{
-  position:absolute;
-  bottom:5px;
-  right:5px;
-  background:var(--accent);
-  color:white;
-  font-size:12px;
-  padding:2px 6px;
-  border-radius:10px;
-}
-
-.reservas{
-  margin-top:20px;
-  background:var(--white);
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.05);
-}
-
-.reserva-item{
-  display:flex;
-  justify-content:space-between;
-  padding:8px;
-  border-bottom:1px solid var(--border);
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EEEP Comendador Miguel Gurgel | Sistema de Gestão Escolar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="estilos/style.css">
 </head>
 <body>
+    <div id="toast-container"></div>
 
-<div class="container">
+    <div id="auth-screen">
+        <div class="auth-container">
+            <div id="login-form">
+                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
+                <div class="school-logo-text" style="display: none;">EEEP Comendador Miguel Gurgel</div>
+                <h2 style="margin-bottom:24px;">Acesso ao Sistema</h2>
+                <div class="input-group">
+                    <input type="text" id="login-email" placeholder="E-mail ou Matrícula">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-pass" placeholder="Senha">
+                    <span class="password-toggle" onclick="togglePassword('login-pass')">👁️</span>
+                </div>
+                <button class="btn-auth" onclick="handleLogin()">Entrar</button>
+                <p class="auth-link">Novo por aqui? <a href="#" onclick="toggleAuth('signup')">Criar conta</a></p>
+            </div>
 
-<header>
-  <h1>Gestão de Laboratórios</h1>
-  <select id="labSelect">
-    <option>Lab Informática</option>
-    <option>Lab Hardware</option>
-    <option>Lab Multimídia</option>
-  </select>
-</header>
+            <div id="signup-form" style="display: none;">
+                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
+                <div class="school-logo-text" style="display: none;">Cadastro</div>
+                <div class="input-group">
+                    <input type="text" id="reg-nome" placeholder="Nome Completo">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="reg-matricula" placeholder="Número da Matrícula">
+                </div>
+                <div class="input-group">
+                    <select id="reg-cargo">
+                        <option value="Professor">Professor(a)</option>
+                        <option value="Coordenador">Coordenador(a)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="reg-email" placeholder="E-mail Institucional">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="reg-pass" placeholder="Senha (mín. 6 dígitos)" oninput="checkPasswordStrength(this.value)">
+                    <span class="password-toggle" onclick="togglePassword('reg-pass')">👁️</span>
+                </div>
+                <div class="password-strength">
+                    <div id="strength-bar" class="strength-bar"></div>
+                </div>
+                <button class="btn-auth" onclick="handleSignup()" style="margin-top:16px;">Finalizar Cadastro</button>
+                <p class="auth-link">Já tem conta? <a href="#" onclick="toggleAuth('login')">Fazer Login</a></p>
+            </div>
+        </div>
+    </div>
 
-<div class="calendar">
-  <div class="calendar-header">
-    <button onclick="prevMonth()">◀</button>
-    <h2 id="monthYear"></h2>
-    <button onclick="nextMonth()">▶</button>
-  </div>
+    <header id="sys-header" style="display: none;">
+        <div class="header-left">
+            <img src="imagens/brasao.png" alt="Brasão" class="header-brasao" onerror="this.style.display='none'">
+            <div class="header-brand">
+                EEEP Comendador Miguel Gurgel
+                <small>Sistema de Gestão Escolar</small>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="dark-toggle" onclick="toggleDarkMode()" id="darkModeBtn">🌙</button>
+            <div class="user-info">
+                <span id="user-info"></span>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </div>
+        </div>
+    </header>
 
-  <div class="calendar-grid" id="calendar"></div>
-</div>
+    <main id="app-content" style="display: none;">
+        <div id="main-menu" class="section active">
+            <div class="welcome-box">
+                <h1>Bem-vindo, servidor!</h1>
+                <p style="opacity:0.7;">O que você deseja gerenciar hoje?</p>
+            </div>
+            <div class="menu-cards">
+                <div class="card" onclick="showSection('reservas')">
+                    <div class="card-icon">🏫</div>
+                    <h3>Alocação de Laboratórios</h3>
+                    <p>Controle de horários de Informática, Hardware e Multimídia.</p>
+                </div>
+                <div class="card" onclick="showSection('monitoria')">
+                    <div class="card-icon">📋</div>
+                    <h3>Escala de Monitoria</h3>
+                    <p>Gestão de postos de apoio e alunos monitores.</p>
+                </div>
+            </div>
+        </div>
 
-<div class="reservas">
-  <h3 id="selectedDateTitle">Selecione um dia</h3>
-  <div id="reservaList"></div>
+        <section id="sec-reservas" class="section">
+            <div class="module-header">
+                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
+                <div class="lab-selector">
+                    <button class="btn-lab active" onclick="changeLab('Lab Informática', this)">💻 Informática</button>
+                    <button class="btn-lab" onclick="changeLab('Lab Hardware', this)">🛠️ Hardware</button>
+                    <button class="btn-lab" onclick="changeLab('Lab Multimídia', this)">🎬 Multimídia</button>
+                </div>
+            </div>
 
-  <h4 style="margin-top:15px;">Nova Reserva</h4>
-  <input type="text" id="professor" placeholder="Professor">
-  <input type="text" id="turma" placeholder="Turma">
-  <select id="horario">
-    <option>07:20 - 08:10</option>
-    <option>08:10 - 09:00</option>
-    <option>09:20 - 10:10</option>
-    <option>10:10 - 11:00</option>
-    <option>11:00 - 11:50</option>
-    <option>13:10 - 14:00</option>
-    <option>14:00 - 14:50</option>
-    <option>15:10 - 16:00</option>
-  </select>
-  <button onclick="salvarReserva()">Salvar</button>
-</div>
+            <div class="filter-bar">
+                <select id="semanaSelect" onchange="renderTable()">
+                    <option value="1">Semana 1</option><option value="2">Semana 2</option>
+                    <option value="3">Semana 3</option><option value="4">Semana 4</option>
+                </select>
+                <select id="diaSelect" onchange="renderTable()">
+                    <option value="Segunda">Segunda-feira</option><option value="Terça">Terça-feira</option>
+                    <option value="Quarta">Quarta-feira</option><option value="Quinta">Quinta-feira</option>
+                    <option value="Sexta">Sexta-feira</option>
+                </select>
+                <button onclick="copyPreviousWeek()">📋 Copiar da semana anterior</button>
+                <button onclick="clearDay()">🧹 Limpar dia</button>
+            </div>
 
-</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Horário</th>
+                            <th>Professor</th>
+                            <th>Turma</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </section>
 
-<script>
-let currentDate = new Date();
-let selectedDate = null;
+        <section id="sec-monitoria" class="section">
+            <div class="module-header">
+                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
+                <h2 style="color: var(--primary);">📋 Escala de Monitoria</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Posto</th>
+                            <th>Aluno</th>
+                            <th>Turma</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyMonitoria"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
-function formatDate(date){
-  return date.toISOString().split('T')[0];
-}
-
-function getReservas(date){
-  const lab = document.getElementById("labSelect").value;
-  const prefix = `reserva::${lab}::${date}`;
-  return Object.keys(localStorage)
-    .filter(k => k.startsWith(prefix))
-    .map(k => JSON.parse(localStorage.getItem(k)));
-}
-
-function countReservas(date){
-  return getReservas(date).length;
-}
-
-function renderCalendar(){
-  const calendar = document.getElementById("calendar");
-  calendar.innerHTML="";
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month+1, 0);
-
-  document.getElementById("monthYear").innerText =
-    firstDay.toLocaleString("pt-BR",{month:"long",year:"numeric"});
-
-  const dayNames = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
-  dayNames.forEach(d=>{
-    const el=document.createElement("div");
-    el.className="day-name";
-    el.innerText=d;
-    calendar.appendChild(el);
-  });
-
-  for(let i=0;i<firstDay.getDay();i++){
-    calendar.appendChild(document.createElement("div"));
-  }
-
-  for(let day=1;day<=lastDay.getDate();day++){
-    const dateObj = new Date(year, month, day);
-    const iso = formatDate(dateObj);
-
-    const el=document.createElement("div");
-    el.className="day";
-    el.innerText=day;
-
-    if(formatDate(new Date())===iso){
-      el.classList.add("today");
-    }
-
-    const count = countReservas(iso);
-    if(count>0){
-      const badge=document.createElement("div");
-      badge.className="badge";
-      badge.innerText=count;
-      el.appendChild(badge);
-    }
-
-    el.onclick=()=>{
-      selectedDate=iso;
-      renderReservas();
-    };
-
-    calendar.appendChild(el);
-  }
-}
-
-function renderReservas(){
-  if(!selectedDate) return;
-
-  document.getElementById("selectedDateTitle").innerText =
-    "Reservas em "+selectedDate;
-
-  const list=document.getElementById("reservaList");
-  list.innerHTML="";
-
-  const reservas=getReservas(selectedDate);
-
-  reservas.forEach(r=>{
-    const div=document.createElement("div");
-    div.className="reserva-item";
-    div.innerHTML=`
-      <span>${r.horario} - ${r.professor} (${r.turma})</span>
-      <button onclick="removerReserva('${r.horario}')">X</button>
-    `;
-    list.appendChild(div);
-  });
-}
-
-function salvarReserva(){
-  if(!selectedDate){
-    alert("Selecione um dia.");
-    return;
-  }
-
-  const professor=document.getElementById("professor").value;
-  const turma=document.getElementById("turma").value;
-  const horario=document.getElementById("horario").value;
-  const lab=document.getElementById("labSelect").value;
-
-  if(!professor || !turma){
-    alert("Preencha todos os campos.");
-    return;
-  }
-
-  const key=`reserva::${lab}::${selectedDate}::${horario}`;
-
-  if(localStorage.getItem(key)){
-    alert("Horário já reservado.");
-    return;
-  }
-
-  localStorage.setItem(key,JSON.stringify({
-    professor,
-    turma,
-    horario
-  }));
-
-  renderCalendar();
-  renderReservas();
-}
-
-function removerReserva(horario){
-  const lab=document.getElementById("labSelect").value;
-  const key=`reserva::${lab}::${selectedDate}::${horario}`;
-  localStorage.removeItem(key);
-  renderCalendar();
-  renderReservas();
-}
-
-function prevMonth(){
-  currentDate.setMonth(currentDate.getMonth()-1);
-  renderCalendar();
-}
-
-function nextMonth(){
-  currentDate.setMonth(currentDate.getMonth()+1);
-  renderCalendar();
-}
-
-document.getElementById("labSelect").addEventListener("change",()=>{
-  renderCalendar();
-  renderReservas();
-});
-
-renderCalendar();
-</script>
-
+    <script src="scripts/index.js"></script>
 </body>
 </html>
