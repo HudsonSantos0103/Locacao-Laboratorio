@@ -3,606 +3,1432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEEP Comendador Miguel Gurgel | Sistema de Gestão Escolar</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <title>SGE | EEEP Miguel Gurgel - Calendário Extraordinário</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ===== VARIÁVEIS E RESET ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-
-        :root {
-            --bg-light: #f8fafc;
-            --bg-dark: #0b1120;
-            --card-light: rgba(255, 255, 255, 0.8);
-            --card-dark: rgba(15, 23, 42, 0.9);
-            --primary: #0f172a;      /* Azul escuro */
-            --primary-light: #1e293b;
-            --accent: #f59e0b;       /* Dourado */
-            --accent-hover: #d97706;
-            --border-light: #e2e8f0;
-            --border-dark: #334155;
-            --text-light: #1e293b;
-            --text-dark: #f1f5f9;
-            --success: #10b981;
-            --error: #ef4444;
-            --warning: #f59e0b;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
-            --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.2);
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
 
-        body { background: var(--bg-light); color: var(--text-light); min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
-        body.dark { --bg-light: var(--bg-dark); --card-light: var(--card-dark); --border-light: var(--border-dark); --text-light: var(--text-dark); }
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #f59e0b;
+            --accent-soft: rgba(245, 158, 11, 0.15);
+            --accent-glow: rgba(245, 158, 11, 0.4);
+            --bg-main: #f8fafc;
+            --bg-side: #ffffff;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: rgba(0, 0, 0, 0.08);
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --radius: 24px;
+            --radius-sm: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        /* ===== COMPONENTES GLOBAIS ===== */
-        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
-        .toast { background: var(--primary); color: white; padding: 14px 20px; border-radius: 12px; font-weight: 500; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; min-width: 280px; max-width: 380px; animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; border-left: 5px solid var(--accent); backdrop-filter: blur(4px); }
-        .toast.success { border-left-color: var(--success); }
-        .toast.error { border-left-color: var(--error); }
-        .toast.warning { border-left-color: var(--warning); }
+        .dark-theme {
+            --bg-main: #020617;
+            --bg-side: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
 
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
+        body {
+            background: var(--bg-main);
+            color: var(--text-main);
+            transition: var(--transition);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-        /* ===== TELA DE AUTENTICAÇÃO ===== */
-        #auth-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(145deg, #e6f0fa 0%, #b0c8da 100%); padding: 16px; }
-        .auth-container { background: var(--card-light); backdrop-filter: blur(12px); padding: 40px; border-radius: 32px; width: 100%; max-width: 440px; box-shadow: var(--shadow-lg); border: 1px solid rgba(255, 255, 255, 0.3); text-align: center; }
-        .school-logo-img { max-width: 100%; height: auto; margin-bottom: 20px; }
-        .school-logo-text { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px; }
-        .input-group { position: relative; margin-bottom: 20px; }
-        .input-group input, .input-group select { width: 100%; padding: 14px 16px; border: 2px solid transparent; border-radius: 16px; background: rgba(255, 255, 255, 0.7); font-size: 15px; transition: var(--transition); outline: none; }
-        .input-group input:focus, .input-group select:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2); }
-        .password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--primary); font-size: 18px; }
-        .password-strength { height: 4px; background: #e2e8f0; border-radius: 4px; margin-top: 8px; overflow: hidden; }
-        .strength-bar { height: 100%; width: 0%; transition: width 0.3s; }
-        .strength-weak { background: var(--error); width: 33%; }
-        .strength-medium { background: var(--warning); width: 66%; }
-        .strength-strong { background: var(--success); width: 100%; }
-        .btn-auth { width: 100%; padding: 14px; border-radius: 40px; background: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; transition: var(--transition); }
-        .btn-auth:hover { background: var(--primary-light); transform: scale(1.02); }
-        .auth-link { text-align: center; margin-top: 20px; }
-        .auth-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
-        .auth-link a:hover { text-decoration: underline; }
+        /* Animações */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        /* ===== CABEÇALHO DO SISTEMA ===== */
-        #sys-header { background: rgba(15, 23, 42, 0.95); color: white; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
-        .header-left { display: flex; align-items: center; gap: 16px; }
-        .header-brasao { height: 48px; width: auto; filter: none; }
-        .header-brand { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; }
-        .header-brand small { font-size: 14px; font-weight: 400; opacity: 0.8; display: block; }
-        .header-actions { display: flex; align-items: center; gap: 24px; }
-        .dark-toggle { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 8px; border-radius: 50%; transition: var(--transition); }
-        .dark-toggle:hover { background: rgba(255, 255, 255, 0.1); }
-        .user-info { display: flex; align-items: center; gap: 16px; }
-        .btn-logout { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 8px 16px; border-radius: 40px; cursor: pointer; transition: var(--transition); font-weight: 500; }
-        .btn-logout:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+            50% { box-shadow: 0 0 40px var(--accent-glow); }
+        }
 
-        /* ===== CONTEÚDO PRINCIPAL ===== */
-        #app-content { max-width: 1400px; margin: 0 auto; padding: 24px; }
-        .section { display: none; animation: fadeIn 0.4s; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Dashboard Layout */
+        #dashboard {
+            display: none;
+            min-height: 100vh;
+        }
 
-        /* ===== CARDS DO MENU ===== */
-        .welcome-box { text-align: center; margin: 40px 0 20px; }
-        .welcome-box h1 { font-size: 36px; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .menu-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; padding: 20px 0 60px; }
-        .card { background: var(--card-light); backdrop-filter: blur(10px); padding: 40px 24px; border-radius: 32px; cursor: pointer; text-align: center; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: var(--shadow); transition: var(--transition); }
-        .card:hover { transform: translateY(-8px) scale(1.02); box-shadow: var(--shadow-lg); border-color: var(--accent); }
-        .card-icon { font-size: 64px; margin-bottom: 20px; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.1)); }
+        .sidebar {
+            width: 280px;
+            background: var(--bg-side);
+            height: 100vh;
+            position: fixed;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            z-index: 1000;
+            transition: var(--transition);
+        }
 
-        /* ===== MÓDULOS ===== */
-        .module-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 30px; }
-        .lab-selector { display: flex; gap: 8px; background: rgba(0,0,0,0.05); padding: 6px; border-radius: 40px; }
-        .btn-lab { border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: 600; background: transparent; color: var(--text-light); transition: var(--transition); }
-        .btn-lab.active { background: var(--accent); color: white; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4); }
-        .filter-bar { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
-        .filter-bar select, .filter-bar button { padding: 12px 20px; border-radius: 40px; border: 1px solid var(--border-light); background: var(--card-light); backdrop-filter: blur(4px); font-size: 14px; cursor: pointer; transition: var(--transition); }
-        .filter-bar button { background: var(--primary); color: white; border: none; display: inline-flex; align-items: center; gap: 8px; }
-        .filter-bar button:hover { background: var(--primary-light); transform: scale(1.02); }
-        .btn-back { background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 40px; cursor: pointer; font-weight: 500; transition: var(--transition); }
-        .btn-back:hover { background: var(--primary-light); transform: translateX(-4px); }
-        .btn-save { background: var(--success); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; transition: var(--transition); }
-        .btn-save:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 0.5rem 2.5rem;
+        }
 
-        /* ===== TABELAS CALENDÁRIO ===== */
-        .table-container { background: var(--card-light); backdrop-filter: blur(8px); border-radius: 24px; border: 1px solid var(--border-light); overflow-x: auto; box-shadow: var(--shadow); transition: opacity 0.3s ease; }
-        .table-container.fade-out { opacity: 0; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th { background: rgba(0,0,0,0.02); padding: 18px 8px; text-align: center; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary); border-bottom: 2px solid var(--accent); }
-        td { padding: 8px; border: 1px solid var(--border-light); text-align: center; vertical-align: middle; cursor: pointer; transition: background 0.2s; }
-        td:hover { background: rgba(245, 158, 11, 0.1); }
-        .slot-time { font-weight: 600; background: rgba(0,0,0,0.02); }
-        .reserva-content { font-size: 13px; }
-        .reserva-prof { font-weight: 500; }
-        .reserva-turma { font-size: 11px; opacity: 0.7; }
-        .lunch-break-cal { background: rgba(245, 158, 11, 0.1); font-weight: 600; color: var(--accent); font-size: 12px; }
+        .logo-premium {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            box-shadow: 0 10px 20px -5px var(--accent-glow);
+        }
 
-        /* ===== MODAL ===== */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
-        .modal.active { display: flex; }
-        .modal-content { background: var(--card-light); backdrop-filter: blur(20px); padding: 30px; border-radius: 32px; max-width: 400px; width: 90%; box-shadow: var(--shadow-lg); }
-        .modal-content h3 { margin-bottom: 20px; color: var(--primary); }
-        .modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid transparent; border-radius: 16px; background: rgba(255,255,255,0.7); font-size: 15px; }
-        .modal-input:focus { border-color: var(--accent); outline: none; background: white; }
-        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-        .modal-btn { padding: 10px 20px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; }
-        .modal-btn.save { background: var(--success); color: white; }
-        .modal-btn.cancel { background: #e2e8f0; color: var(--text-light); }
+        .sidebar-brand span {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
 
-        /* ===== DARK MODE AJUSTES ===== */
-        body.dark .card, body.dark .auth-container, body.dark .table-container, body.dark .filter-bar select, body.dark .modal-content { background: rgba(15, 23, 42, 0.9); border-color: #334155; }
-        body.dark td input { background: #1e293b; color: white; border-color: #334155; }
-        body.dark td input:focus { border-color: var(--accent); background: #0f172a; }
-        body.dark .header-brasao { filter: none; }
-        body.dark .modal-input { background: #1e293b; color: white; }
+        .nav-link {
+            background: transparent;
+            border: none;
+            padding: 1rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-radius: 14px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 0.5rem;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .nav-link i {
+            font-size: 1.3rem;
+        }
+
+        .nav-link:hover {
+            background: var(--accent-soft);
+            color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            display: flex;
+            gap: 10px;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-icon {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: var(--transition);
+            font-size: 1.2rem;
+        }
+
+        .btn-icon:hover {
+            background: var(--accent-soft);
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem 2.5rem;
+            min-height: 100vh;
+        }
+
+        /* Top Bar Premium */
+        .top-bar-premium {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            animation: slideIn 0.5s ease;
+        }
+
+        .page-info h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-main), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
+        }
+
+        .search-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.5rem 1rem 0.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 300px;
+            transition: var(--transition);
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            width: 100%;
+            font-size: 0.95rem;
+        }
+
+        .search-bar button {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .user-premium {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--bg-card);
+            padding: 8px 20px 8px 12px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+
+        .user-avatar-premium {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* Lab Selector Extraordinário */
+        .lab-selector-premium {
+            margin-bottom: 2.5rem;
+            animation: slideIn 0.6s ease;
+        }
+
+        .lab-tabs {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 60px;
+            border: 1px solid var(--border);
+            width: fit-content;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lab-tab {
+            border: none;
+            background: transparent;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .lab-tab i {
+            font-size: 1.3rem;
+        }
+
+        .lab-tab:hover {
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .lab-tab.active {
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            color: #000;
+            box-shadow: 0 10px 20px -5px var(--accent-glow);
+        }
+
+        .lab-tab.active i {
+            color: #000;
+        }
+
+        .lab-info-bar {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .occupancy-card {
+            background: var(--bg-card);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .occupancy-bar {
+            width: 200px;
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .occupancy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #fbbf24);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-card);
+            padding: 5px;
+            border-radius: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .view-toggle button {
+            border: none;
+            background: transparent;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .view-toggle button.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* Calendário Extraordinário (inspirado na sua imagem) */
+        .calendar-premium {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.7s ease;
+        }
+
+        .calendar-header-premium {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .month-selector h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-main), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .month-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .month-nav button {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: var(--bg-main);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.2rem;
+        }
+
+        .month-nav button:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        .quick-months {
+            display: flex;
+            gap: 10px;
+        }
+
+        .quick-month {
+            border: none;
+            background: var(--bg-main);
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .quick-month:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .quick-month.active {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 1rem 0;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: var(--bg-main);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-md);
+        }
+
+        .calendar-day.active {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, var(--accent-soft), transparent);
+        }
+
+        .day-number {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .day-events {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .event-badge {
+            background: var(--accent);
+            color: #000;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .event-badge.holiday {
+            background: #ef4444;
+            color: white;
+        }
+
+        .event-badge.cultural {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .more-indicator {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .calendar-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .legend-color.holiday { background: #ef4444; }
+        .legend-color.cultural { background: #8b5cf6; }
+        .legend-color.event { background: var(--accent); }
+
+        .calendar-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-premium {
+            border: none;
+            background: var(--bg-main);
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            cursor: pointer;
+            color: var(--text-main);
+            font-weight: 600;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-premium:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        .btn-premium-primary {
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            color: #000;
+            border: none;
+            box-shadow: 0 10px 20px -5px var(--accent-glow);
+        }
+
+        .btn-premium-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -5px var(--accent-glow);
+        }
+
+        /* Schedule Panel */
+        .schedule-panel {
+            margin-top: 2.5rem;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            animation: slideIn 0.8s ease;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .schedule-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .schedule-card {
+            background: var(--bg-main);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: grab;
+        }
+
+        .schedule-card:active {
+            cursor: grabbing;
+        }
+
+        .schedule-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent);
+        }
+
+        .schedule-card.dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+
+        .schedule-time {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .schedule-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .schedule-prof {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .schedule-prof i {
+            color: var(--accent);
+        }
+
+        .schedule-turma {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+        }
+
+        .schedule-status {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .status-reservado {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .status-disponivel {
+            background: rgba(100, 116, 139, 0.1);
+            color: var(--text-muted);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--accent);
+            background: var(--accent-soft);
+            transform: scale(1.02);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: var(--bg-card);
+            color: var(--text-main);
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            max-width: 250px;
+            z-index: 10000;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        /* Fullscreen */
+        .calendar-premium.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            margin: 0;
+            border-radius: 0;
+            overflow-y: auto;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .main-content {
+                margin-left: 280px;
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 90px;
+                padding: 2rem 0.8rem;
+            }
+            .sidebar-brand span,
+            .nav-link span {
+                display: none;
+            }
+            .main-content {
+                margin-left: 90px;
+            }
+            .calendar-grid {
+                grid-template-columns: repeat(7, minmax(80px, 1fr));
+            }
+        }
 
         @media (max-width: 768px) {
-            .module-header { flex-direction: column; align-items: flex-start; }
-            .header-brand { font-size: 16px; }
-            .header-brasao { height: 36px; }
+            .calendar-header-premium {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .quick-months {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.5s;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div id="toast-container"></div>
-
-    <!-- MODAL DE EDIÇÃO -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle">Editar Reserva</h3>
-            <input type="text" id="modalProf" class="modal-input" placeholder="Professor">
-            <input type="text" id="modalTurma" class="modal-input" placeholder="Turma">
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
-                <button class="modal-btn save" onclick="saveModal()">Salvar</button>
-            </div>
-        </div>
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
     </div>
 
-    <div id="auth-screen">
-        <div class="auth-container">
-            <div id="login-form">
-                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
-                <div class="school-logo-text" style="display: none;">EEEP Comendador Miguel Gurgel</div>
-                <h2 style="margin-bottom:24px;">Acesso ao Sistema</h2>
-                <div class="input-group">
-                    <input type="text" id="login-email" placeholder="E-mail ou Matrícula">
+    <!-- DASHBOARD PRINCIPAL -->
+    <div id="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo-premium">MG</div>
+                <span>SGE</span>
+            </div>
+            <nav>
+                <button class="nav-link active" data-view="menu">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-link" data-view="calendario">
+                    <i class="bi bi-calendar-week"></i>
+                    <span>Calendário</span>
+                </button>
+                <button class="nav-link" data-view="reservas">
+                    <i class="bi bi-pc-display"></i>
+                    <span>Laboratórios</span>
+                </button>
+                <button class="nav-link" data-view="monitoria">
+                    <i class="bi bi-people"></i>
+                    <span>Monitoria</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-icon" id="theme-toggle"><i class="bi bi-moon-stars" id="theme-icon"></i></button>
+                <button class="btn-icon" id="fullscreen-toggle"><i class="bi bi-arrows-fullscreen"></i></button>
+                <button class="btn-icon" id="logout-btn"><i class="bi bi-box-arrow-right"></i></button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- TOP BAR PREMIUM -->
+            <div class="top-bar-premium">
+                <div class="page-info">
+                    <h1 id="page-title">Dashboard</h1>
                 </div>
-                <div class="input-group">
-                    <input type="password" id="login-pass" placeholder="Senha">
-                    <span class="password-toggle" onclick="togglePassword('login-pass')">👁️</span>
+                <div class="search-bar">
+                    <input type="text" placeholder="Pesquisar laboratório, monitor, data...">
+                    <button><i class="bi bi-search"></i></button>
                 </div>
-                <button class="btn-auth" onclick="handleLogin()">Entrar</button>
-                <p class="auth-link">Novo por aqui? <a href="#" onclick="toggleAuth('signup')">Criar conta</a></p>
+                <div class="user-premium">
+                    <div class="user-avatar-premium" id="user-initials">AD</div>
+                    <div>
+                        <strong id="display-user-name">Usuário</strong>
+                    </div>
+                </div>
             </div>
 
-            <div id="signup-form" style="display: none;">
-                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
-                <div class="school-logo-text" style="display: none;">Cadastro</div>
-                <div class="input-group">
-                    <input type="text" id="reg-nome" placeholder="Nome Completo">
+            <!-- VIEW DASHBOARD -->
+            <div id="view-menu" class="view active">
+                <div style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 3rem; border-radius: var(--radius); margin-bottom: 2rem;">
+                    <h2 style="font-size: 2rem; margin-bottom: 1rem;">Bem-vindo ao <span style="color: var(--accent);">SGE Extraordinário</span></h2>
+                    <p style="opacity: 0.9; font-size: 1.1rem;">Uma nova experiência em gestão de laboratórios e monitorias.</p>
                 </div>
-                <div class="input-group">
-                    <input type="text" id="reg-matricula" placeholder="Número da Matrícula">
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div class="calendar-premium" style="padding: 2rem; cursor: pointer;" data-view="calendario">
+                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                            <i class="bi bi-calendar-check" style="color: var(--accent);"></i>
+                            Calendário de Reservas
+                        </h3>
+                        <p>Veja todos os agendamentos em uma visão mensal completa.</p>
+                        <div style="margin-top: 1rem; color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
+                    </div>
+                    
+                    <div class="calendar-premium" style="padding: 2rem; cursor: pointer;" data-view="reservas">
+                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                            <i class="bi bi-pc-display" style="color: var(--accent);"></i>
+                            Laboratórios
+                        </h3>
+                        <p>Gerencie reservas dos laboratórios de Informática, Hardware e Multimídia.</p>
+                        <div style="margin-top: 1rem; color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
+                    </div>
+                    
+                    <div class="calendar-premium" style="padding: 2rem; cursor: pointer;" data-view="monitoria">
+                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                            <i class="bi bi-people" style="color: var(--accent);"></i>
+                            Monitoria
+                        </h3>
+                        <p>Escala diária dos monitores nos postos de apoio.</p>
+                        <div style="margin-top: 1rem; color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <select id="reg-cargo">
-                        <option value="Professor">Professor(a)</option>
-                        <option value="Coordenador">Coordenador(a)</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <input type="email" id="reg-email" placeholder="E-mail Institucional">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="reg-pass" placeholder="Senha (mín. 6 dígitos)" oninput="checkPasswordStrength(this.value)">
-                    <span class="password-toggle" onclick="togglePassword('reg-pass')">👁️</span>
-                </div>
-                <div class="password-strength">
-                    <div id="strength-bar" class="strength-bar"></div>
-                </div>
-                <button class="btn-auth" onclick="handleSignup()" style="margin-top:16px;">Finalizar Cadastro</button>
-                <p class="auth-link">Já tem conta? <a href="#" onclick="toggleAuth('login')">Fazer Login</a></p>
             </div>
-        </div>
+
+            <!-- VIEW CALENDÁRIO EXTRAORDINÁRIO -->
+            <div id="view-calendario" class="view">
+                <div class="lab-selector-premium">
+                    <div class="lab-tabs">
+                        <button class="lab-tab active" data-lab="Informática">
+                            <i class="bi bi-pc-display"></i>
+                            <span>Lab Informática (LEI)</span>
+                        </button>
+                        <button class="lab-tab" data-lab="Hardware">
+                            <i class="bi bi-motherboard"></i>
+                            <span>Lab Hardware</span>
+                        </button>
+                        <button class="lab-tab" data-lab="Multimídia">
+                            <i class="bi bi-camera-reels"></i>
+                            <span>Lab Multimídia</span>
+                        </button>
+                    </div>
+                    
+                    <div class="lab-info-bar">
+                        <div class="occupancy-card">
+                            <span>Ocupação</span>
+                            <div class="occupancy-bar">
+                                <div class="occupancy-fill" id="occupancy-fill" style="width: 68%;"></div>
+                            </div>
+                            <span id="occupancy-percent">68%</span>
+                        </div>
+                        
+                        <div class="view-toggle">
+                            <button class="active" data-view-type="month">Mês</button>
+                            <button data-view-type="week">Semana</button>
+                            <button data-view-type="day">Dia</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CALENDÁRIO PREMIUM (INSPIRADO NA IMAGEM) -->
+                <div class="calendar-premium" id="main-calendar">
+                    <div class="calendar-header-premium">
+                        <div class="month-selector">
+                            <h2 id="current-month-title">Fevereiro 2026</h2>
+                            <div class="month-nav">
+                                <button id="prev-month"><i class="bi bi-chevron-left"></i></button>
+                                <button id="next-month"><i class="bi bi-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="quick-months">
+                            <button class="quick-month active">Fev</button>
+                            <button class="quick-month">Mar</button>
+                            <button class="quick-month">Abr</button>
+                            <button class="quick-month">Mai</button>
+                            <button class="quick-month">Jun</button>
+                            <button class="quick-month">Jul</button>
+                        </div>
+                    </div>
+
+                    <!-- GRADE DO CALENDÁRIO -->
+                    <div class="calendar-grid" id="calendar-grid">
+                        <!-- Dias da semana serão inseridos via JS -->
+                    </div>
+
+                    <div class="calendar-footer">
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color holiday"></div>
+                                <span>Feriado</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color cultural"></div>
+                                <span>Evento Cultural</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color event"></div>
+                                <span>Reserva</span>
+                            </div>
+                        </div>
+                        <div class="calendar-actions">
+                            <button class="btn-premium" id="today-btn">
+                                <i class="bi bi-dot"></i> Hoje
+                            </button>
+                            <button class="btn-premium" id="filter-btn">
+                                <i class="bi bi-funnel"></i> Filtrar
+                            </button>
+                            <button class="btn-premium btn-premium-primary" id="new-event-btn">
+                                <i class="bi bi-plus-lg"></i> Novo Evento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAINEL DE AGENDAMENTOS (DRAG & DROP) -->
+                <div class="schedule-panel">
+                    <div class="schedule-header">
+                        <h3><i class="bi bi-calendar2-week" style="color: var(--accent); margin-right: 10px;"></i>Agendamentos do Dia</h3>
+                        <span id="selected-date-display" style="color: var(--text-muted);">15 de Fevereiro de 2026</span>
+                    </div>
+                    <div class="schedule-grid" id="schedule-grid">
+                        <!-- Cards serão inseridos via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW RESERVAS (simplificada) -->
+            <div id="view-reservas" class="view">
+                <div class="calendar-premium" style="padding: 2rem;">
+                    <h2 style="margin-bottom: 2rem;">Gerenciamento de Laboratórios</h2>
+                    <p style="color: var(--text-muted);">Use o calendário completo para fazer suas reservas com drag & drop.</p>
+                    <button class="btn-premium btn-premium-primary" style="margin-top: 1rem;" data-view="calendario">
+                        <i class="bi bi-calendar-week"></i> Ver Calendário Completo
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIEW MONITORIA -->
+            <div id="view-monitoria" class="view">
+                <div class="calendar-premium" style="padding: 2rem;">
+                    <h2 style="margin-bottom: 2rem;">Monitoria - Postos de Apoio</h2>
+                    <div style="display: grid; gap: 1rem;" id="monitoria-list">
+                        <!-- Será preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-
-    <header id="sys-header" style="display: none;">
-        <div class="header-left">
-            <img src="imagens/brasao.png" alt="Brasão" class="header-brasao" onerror="this.style.display='none'">
-            <div class="header-brand">
-                EEEP Comendador Miguel Gurgel
-                <small>Sistema de Gestão Escolar</small>
-            </div>
-        </div>
-        <div class="header-actions">
-            <button class="dark-toggle" onclick="toggleDarkMode()" id="darkModeBtn">🌙</button>
-            <div class="user-info">
-                <span id="user-info"></span>
-                <button class="btn-logout" onclick="logout()">Sair</button>
-            </div>
-        </div>
-    </header>
-
-    <main id="app-content" style="display: none;">
-        <div id="main-menu" class="section active">
-            <div class="welcome-box">
-                <h1>Bem-vindo, servidor!</h1>
-                <p style="opacity:0.7;">O que você deseja gerenciar hoje?</p>
-            </div>
-            <div class="menu-cards">
-                <div class="card" onclick="showSection('reservas')">
-                    <div class="card-icon">🏫</div>
-                    <h3>Alocação de Laboratórios</h3>
-                    <p>Controle de horários de Informática, Hardware e Multimídia.</p>
-                </div>
-                <div class="card" onclick="showSection('monitoria')">
-                    <div class="card-icon">📋</div>
-                    <h3>Escala de Monitoria</h3>
-                    <p>Gestão de postos de apoio e alunos monitores.</p>
-                </div>
-            </div>
-        </div>
-
-        <section id="sec-reservas" class="section">
-            <div class="module-header">
-                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
-                <div class="lab-selector">
-                    <button class="btn-lab active" onclick="changeLab('Lab Informática', this)">💻 Informática</button>
-                    <button class="btn-lab" onclick="changeLab('Lab Hardware', this)">🛠️ Hardware</button>
-                    <button class="btn-lab" onclick="changeLab('Lab Multimídia', this)">🎬 Multimídia</button>
-                </div>
-            </div>
-
-            <div class="filter-bar">
-                <select id="semanaSelectReservas" onchange="renderLabCalendar()">
-                    <option value="1">Semana 1</option><option value="2">Semana 2</option>
-                    <option value="3">Semana 3</option><option value="4">Semana 4</option>
-                </select>
-                <button onclick="copyPreviousWeekLab()">📋 Copiar da semana anterior</button>
-                <button onclick="clearWeekLab()">🧹 Limpar semana</button>
-            </div>
-
-            <div id="labCalendarContainer" class="table-container">
-                <!-- Tabela será gerada dinamicamente -->
-            </div>
-        </section>
-
-        <section id="sec-monitoria" class="section">
-            <div class="module-header">
-                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
-                <h2 style="color: var(--primary);">📋 Escala de Monitoria</h2>
-            </div>
-            <div class="filter-bar">
-                <select id="semanaSelectMonitoria" onchange="renderMonCalendar()">
-                    <option value="1">Semana 1</option><option value="2">Semana 2</option>
-                    <option value="3">Semana 3</option><option value="4">Semana 4</option>
-                </select>
-                <button onclick="copyPreviousWeekMon()">📋 Copiar da semana anterior</button>
-                <button onclick="clearWeekMon()">🧹 Limpar semana</button>
-            </div>
-            <div id="monCalendarContainer" class="table-container">
-                <!-- Tabela será gerada dinamicamente -->
-            </div>
-        </section>
-    </main>
 
     <script>
-        // ==================== CONFIGURAÇÕES ====================
-        const CONFIG = {
-            slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
-            diasSemana: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"],
-            postosMonitoria: ["Fila do Intervalo", "Refeitório (Suco)", "Refeitório (Pratos)", "Portaria Almoço", "Pátio Central", "Fila Almoço"],
-            turmasValidas: ["DS1", "DS2", "DS3", "MULTI1", "MULTI2", "MULTI3", "CTB1", "CTB2", "CTB3", "RDC1", "RDC2", "RDC3"]
-        };
+        (function() {
+            // ========== ESTADO GLOBAL ==========
+            let state = {
+                user: {
+                    nome: 'Administrador',
+                    cargo: 'Coordenador',
+                    email: 'admin@escola.com'
+                },
+                currentLab: 'Informática',
+                currentDate: new Date(2026, 1, 15), // 15 de Fevereiro 2026
+                viewType: 'month',
+                events: {
+                    '2026-02-03': [{ title: 'Carnaval', type: 'holiday' }],
+                    '2026-02-04': [{ title: 'Festa do Carnavalho', type: 'cultural' }],
+                    '2026-02-10': [{ title: 'Reunião Pedagógica', type: 'event' }],
+                    '2026-02-15': [{ title: '3º A - Programação', type: 'event' }, { title: '2º B - Hardware', type: 'event' }],
+                    '2026-02-20': [{ title: 'Entrega de Notas', type: 'event' }],
+                },
+                slots: [
+                    { time: '07:20 - 08:10', prof: 'João Silva', turma: '3º A', status: 'reservado' },
+                    { time: '08:10 - 09:00', prof: 'Maria Santos', turma: '2º B', status: 'reservado' },
+                    { time: '09:20 - 10:10', prof: '', turma: '', status: 'disponivel' },
+                    { time: '10:10 - 11:00', prof: 'Carlos Lima', turma: '1º C', status: 'reservado' },
+                    { time: '11:00 - 11:50', prof: '', turma: '', status: 'disponivel' },
+                ]
+            };
 
-        let currentLab = "Lab Informática";
-        let currentEditCell = null; // Para o modal
+            // ========== ELEMENTOS ==========
+            const loading = document.getElementById('loading');
+            const dashboard = document.getElementById('dashboard');
+            const calendarGrid = document.getElementById('calendar-grid');
+            const currentMonthTitle = document.getElementById('current-month-title');
+            const scheduleGrid = document.getElementById('schedule-grid');
+            const selectedDateDisplay = document.getElementById('selected-date-display');
+            const occupancyFill = document.getElementById('occupancy-fill');
+            const occupancyPercent = document.getElementById('occupancy-percent');
 
-        // ==================== UTILITÁRIOS ====================
-        const storage = {
-            set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
-            get: (key) => JSON.parse(localStorage.getItem(key))
-        };
-
-        function showToast(msg, type = 'info') {
-            const c = document.getElementById('toast-container');
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            t.innerText = msg;
-            c.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
-
-        // ==================== AUTENTICAÇÃO ====================
-        function toggleAuth(type) {
-            document.getElementById('login-form').style.display = type === 'signup' ? 'none' : 'block';
-            document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
-        }
-
-        function togglePassword(id) {
-            const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-
-        function checkPasswordStrength(val) {
-            const bar = document.getElementById('strength-bar');
-            if(val.length === 0) { bar.className = 'strength-bar'; }
-            else if(val.length < 6) { bar.className = 'strength-bar strength-weak'; }
-            else if(val.length < 8) { bar.className = 'strength-bar strength-medium'; }
-            else { bar.className = 'strength-bar strength-strong'; }
-        }
-
-        function handleSignup() {
-            const email = document.getElementById('reg-email').value.toLowerCase().trim();
-            const user = { nome: document.getElementById('reg-nome').value, pass: document.getElementById('reg-pass').value, cargo: document.getElementById('reg-cargo').value };
-            if(!email || user.pass.length < 6) return showToast("Dados inválidos ou senha curta!", 'error');
-            storage.set(`user-${email}`, user);
-            showToast("✅ Cadastro realizado!", 'success');
-            toggleAuth('login');
-        }
-
-        function handleLogin() {
-            const email = document.getElementById('login-email').value.toLowerCase().trim();
-            const pass = document.getElementById('login-pass').value;
-            const saved = storage.get(`user-${email}`);
-
-            if (saved && saved.pass === pass) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('sys-header').style.display = 'flex';
-                document.getElementById('app-content').style.display = 'block';
-                document.getElementById('user-info').innerText = `${saved.cargo}: ${saved.nome}`;
-                showSection('menu');
-                showToast("Bem-vindo!", 'success');
-            } else {
-                showToast("❌ E-mail ou senha incorretos.", 'error');
+            // ========== FUNÇÕES DE UTILIDADE ==========
+            function formatDateKey(date) {
+                return date.toISOString().split('T')[0];
             }
-        }
 
-        function logout() { location.reload(); }
-
-        // ==================== NAVEGAÇÃO E MODO ESCURO ====================
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            if (id === 'menu') {
-                document.getElementById('main-menu').classList.add('active');
-            } else {
-                document.getElementById(`sec-${id}`).classList.add('active');
-                if (id === 'reservas') renderLabCalendar();
-                if (id === 'monitoria') renderMonCalendar();
+            function formatDateLong(date) {
+                return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
             }
-        }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark');
-            const btn = document.getElementById('darkModeBtn');
-            btn.innerText = document.body.classList.contains('dark') ? '☀️' : '🌙';
-        }
+            function getMonthName(date) {
+                return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            }
 
-        // ==================== LABORATÓRIOS - CALENDÁRIO SEMANAL ====================
-        function changeLab(lab, btn) {
-            currentLab = lab;
-            document.querySelectorAll('.btn-lab').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            // Animação: fade out e in
-            const container = document.getElementById('labCalendarContainer');
-            container.classList.add('fade-out');
-            setTimeout(() => {
-                renderLabCalendar();
-                container.classList.remove('fade-out');
-            }, 200);
-        }
-
-        function renderLabCalendar() {
-            const semana = document.getElementById('semanaSelectReservas').value;
-            const container = document.getElementById('labCalendarContainer');
-            let html = '<table><thead><tr><th>Horário</th>';
-
-            // Cabeçalho com os dias
-            CONFIG.diasSemana.forEach(dia => {
-                html += `<th>${dia}</th>`;
-            });
-            html += '</tr></thead><tbody>';
-
-            // Linhas de horários
-            CONFIG.slots.forEach(slot => {
-                const isLunch = slot.includes("12:00");
-                html += '<tr>';
-                html += `<td class="slot-time">${slot}</td>`;
-
-                if (isLunch) {
-                    // Intervalo de almoço ocupa todas as colunas de dias
-                    html += `<td colspan="5" class="lunch-break-cal">🍱 INTERVALO DE ALMOÇO</td>`;
-                } else {
-                    CONFIG.diasSemana.forEach(dia => {
-                        const key = `res-${currentLab}-S${semana}-${dia}-${slot}`;
-                        const saved = storage.get(key) || { prof: '', turma: '' };
-                        html += `<td onclick="openEditModal(this, '${currentLab}', '${semana}', '${dia}', '${slot}')">`;
-                        if (saved.prof || saved.turma) {
-                            html += `<div class="reserva-content"><span class="reserva-prof">${saved.prof}</span> <span class="reserva-turma">${saved.turma}</span></div>`;
-                        } else {
-                            html += `<span style="opacity:0.4;">—</span>`;
-                        }
-                        html += '</td>';
+            // ========== RENDERIZAR CALENDÁRIO ==========
+            function renderCalendar() {
+                const year = state.currentDate.getFullYear();
+                const month = state.currentDate.getMonth();
+                
+                currentMonthTitle.textContent = getMonthName(state.currentDate).replace(/^[a-z]/, l => l.toUpperCase());
+                
+                const firstDay = new Date(year, month, 1).getDay(); // 0 = domingo
+                const lastDay = new Date(year, month + 1, 0).getDate();
+                
+                const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                
+                let html = '';
+                
+                // Weekday headers
+                weekdays.forEach(day => {
+                    html += `<div class="calendar-weekday">${day}</div>`;
+                });
+                
+                // Dias vazios antes do primeiro dia
+                for (let i = 0; i < firstDay; i++) {
+                    html += `<div class="calendar-day" style="opacity: 0.3; background: transparent;"></div>`;
+                }
+                
+                // Dias do mês
+                const today = new Date();
+                const todayStr = formatDateKey(today);
+                
+                for (let d = 1; d <= lastDay; d++) {
+                    const dateObj = new Date(year, month, d);
+                    const dateStr = formatDateKey(dateObj);
+                    const isToday = dateStr === todayStr;
+                    const isSelected = dateStr === formatDateKey(state.currentDate);
+                    
+                    // Eventos do dia
+                    const dayEvents = state.events[dateStr] || [];
+                    
+                    html += `<div class="calendar-day ${isSelected ? 'active' : ''} ${isToday ? 'today' : ''}" data-date="${dateStr}">
+                        <span class="day-number">${d}</span>
+                        <div class="day-events">`;
+                    
+                    // Mostrar até 2 eventos
+                    dayEvents.slice(0, 2).forEach(event => {
+                        html += `<div class="event-badge ${event.type}">${event.title}</div>`;
                     });
-                }
-                html += '</tr>';
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        // Modal
-        function openEditModal(cell, lab, semana, dia, slot) {
-            currentEditCell = { cell, lab, semana, dia, slot };
-            const key = `res-${lab}-S${semana}-${dia}-${slot}`;
-            const saved = storage.get(key) || { prof: '', turma: '' };
-            document.getElementById('modalProf').value = saved.prof;
-            document.getElementById('modalTurma').value = saved.turma;
-            document.getElementById('modalTitle').innerText = `Editar - ${dia} ${slot}`;
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('editModal').classList.remove('active');
-            currentEditCell = null;
-        }
-
-        function saveModal() {
-            if (!currentEditCell) return;
-            const { lab, semana, dia, slot } = currentEditCell;
-            const prof = document.getElementById('modalProf').value.trim();
-            const turma = document.getElementById('modalTurma').value.trim().toUpperCase();
-            const key = `res-${lab}-S${semana}-${dia}-${slot}`;
-            storage.set(key, { prof, turma });
-            // Atualizar célula visualmente
-            if (currentEditCell.cell) {
-                if (prof || turma) {
-                    currentEditCell.cell.innerHTML = `<div class="reserva-content"><span class="reserva-prof">${prof}</span> <span class="reserva-turma">${turma}</span></div>`;
-                } else {
-                    currentEditCell.cell.innerHTML = `<span style="opacity:0.4;">—</span>`;
-                }
-            }
-            closeModal();
-            showToast('Reserva salva!', 'success');
-        }
-
-        function copyPreviousWeekLab() {
-            const sem = parseInt(document.getElementById('semanaSelectReservas').value);
-            if(sem === 1) return showToast("⚠️ Não há semana anterior para copiar!", 'warning');
-            const dias = CONFIG.diasSemana;
-            dias.forEach(dia => {
-                CONFIG.slots.forEach(slot => {
-                    const prevKey = `res-${currentLab}-S${sem-1}-${dia}-${slot}`;
-                    const currKey = `res-${currentLab}-S${sem}-${dia}-${slot}`;
-                    const saved = storage.get(prevKey);
-                    if(saved) storage.set(currKey, saved);
-                });
-            });
-            renderLabCalendar();
-            showToast("✅ Dados copiados da semana " + (sem-1), 'success');
-        }
-
-        function clearWeekLab() {
-            if(!confirm("Tem certeza que deseja limpar todas as reservas desta semana?")) return;
-            const sem = document.getElementById('semanaSelectReservas').value;
-            const dias = CONFIG.diasSemana;
-            dias.forEach(dia => {
-                CONFIG.slots.forEach(slot => {
-                    localStorage.removeItem(`res-${currentLab}-S${sem}-${dia}-${slot}`);
-                });
-            });
-            renderLabCalendar();
-            showToast("🧹 Semana limpa!", 'success');
-        }
-
-        // ==================== MONITORIA - CALENDÁRIO SEMANAL ====================
-        function renderMonCalendar() {
-            const semana = document.getElementById('semanaSelectMonitoria').value;
-            const container = document.getElementById('monCalendarContainer');
-            let html = '<table><thead><tr><th>Posto</th>';
-
-            CONFIG.diasSemana.forEach(dia => {
-                html += `<th>${dia}</th>`;
-            });
-            html += '</tr></thead><tbody>';
-
-            CONFIG.postosMonitoria.forEach(posto => {
-                html += '<tr>';
-                html += `<td class="slot-time">${posto}</td>`;
-                CONFIG.diasSemana.forEach(dia => {
-                    const key = `mon-${posto}-S${semana}-${dia}`;
-                    const saved = storage.get(key) || { aluno: '', turma: '' };
-                    html += `<td onclick="openEditModalMon(this, '${posto}', '${semana}', '${dia}')">`;
-                    if (saved.aluno || saved.turma) {
-                        html += `<div class="reserva-content"><span class="reserva-prof">${saved.aluno}</span> <span class="reserva-turma">${saved.turma}</span></div>`;
-                    } else {
-                        html += `<span style="opacity:0.4;">—</span>`;
+                    
+                    if (dayEvents.length > 2) {
+                        html += `<div class="more-indicator">+${dayEvents.length - 2}</div>`;
                     }
-                    html += '</td>';
-                });
-                html += '</tr>';
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        function openEditModalMon(cell, posto, semana, dia) {
-            currentEditCell = { cell, posto, semana, dia };
-            const key = `mon-${posto}-S${semana}-${dia}`;
-            const saved = storage.get(key) || { aluno: '', turma: '' };
-            document.getElementById('modalProf').value = saved.aluno; // Reutilizando o campo professor para aluno
-            document.getElementById('modalTurma').value = saved.turma;
-            document.getElementById('modalTitle').innerText = `Editar Monitor - ${posto} (${dia})`;
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function saveModalMon() {
-            if (!currentEditCell) return;
-            const { posto, semana, dia } = currentEditCell;
-            const aluno = document.getElementById('modalProf').value.trim();
-            const turma = document.getElementById('modalTurma').value.trim().toUpperCase();
-            const key = `mon-${posto}-S${semana}-${dia}`;
-            storage.set(key, { aluno, turma });
-            if (currentEditCell.cell) {
-                if (aluno || turma) {
-                    currentEditCell.cell.innerHTML = `<div class="reserva-content"><span class="reserva-prof">${aluno}</span> <span class="reserva-turma">${turma}</span></div>`;
-                } else {
-                    currentEditCell.cell.innerHTML = `<span style="opacity:0.4;">—</span>`;
+                    
+                    html += `</div></div>`;
                 }
-            }
-            closeModal();
-            showToast('Escala salva!', 'success');
-        }
-
-        // Sobrescreve saveModal para tratar monitoria
-        const originalSaveModal = saveModal;
-        window.saveModal = function() {
-            if (currentEditCell && currentEditCell.hasOwnProperty('posto')) {
-                saveModalMon();
-            } else {
-                originalSaveModal();
-            }
-        };
-
-        function copyPreviousWeekMon() {
-            const sem = parseInt(document.getElementById('semanaSelectMonitoria').value);
-            if(sem === 1) return showToast("⚠️ Não há semana anterior para copiar!", 'warning');
-            const dias = CONFIG.diasSemana;
-            CONFIG.postosMonitoria.forEach(posto => {
-                dias.forEach(dia => {
-                    CONFIG.slots.forEach(slot => {
-                        const prevKey = `mon-${posto}-S${sem-1}-${dia}`;
-                        const currKey = `mon-${posto}-S${sem}-${dia}`;
-                        const saved = storage.get(prevKey);
-                        if(saved) storage.set(currKey, saved);
+                
+                calendarGrid.innerHTML = html;
+                
+                // Adicionar eventos de clique nos dias
+                document.querySelectorAll('.calendar-day[data-date]').forEach(day => {
+                    day.addEventListener('click', (e) => {
+                        const dateStr = day.dataset.date;
+                        state.currentDate = new Date(dateStr + 'T12:00:00');
+                        renderCalendar();
+                        renderSchedule();
+                        
+                        // Atualizar data selecionada
+                        if (selectedDateDisplay) {
+                            selectedDateDisplay.textContent = formatDateLong(state.currentDate);
+                        }
+                    });
+                    
+                    // Tooltip ao passar o mouse
+                    day.addEventListener('mouseenter', (e) => {
+                        const dateStr = day.dataset.date;
+                        const events = state.events[dateStr] || [];
+                        if (events.length === 0) return;
+                        
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        tooltip.innerHTML = `
+                            <strong>${formatDateLong(new Date(dateStr + 'T12:00:00'))}</strong>
+                            <div style="margin-top: 8px;">
+                                ${events.map(e => `<div style="display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
+                                    <span style="width: 8px; height: 8px; border-radius: 4px; background: ${e.type === 'holiday' ? '#ef4444' : e.type === 'cultural' ? '#8b5cf6' : '#f59e0b'};"></span>
+                                    ${e.title}
+                                </div>`).join('')}
+                            </div>
+                        `;
+                        
+                        document.body.appendChild(tooltip);
+                        
+                        const rect = day.getBoundingClientRect();
+                        tooltip.style.left = rect.left + 'px';
+                        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+                        
+                        day.addEventListener('mouseleave', () => {
+                            tooltip.remove();
+                        }, { once: true });
                     });
                 });
-            });
-            renderMonCalendar();
-            showToast("✅ Dados copiados da semana " + (sem-1), 'success');
-        }
+            }
 
-        function clearWeekMon() {
-            if(!confirm("Tem certeza que deseja limpar todas as escalas desta semana?")) return;
-            const sem = document.getElementById('semanaSelectMonitoria').value;
-            const dias = CONFIG.diasSemana;
-            CONFIG.postosMonitoria.forEach(posto => {
-                dias.forEach(dia => {
-                    localStorage.removeItem(`mon-${posto}-S${sem}-${dia}`);
+            // ========== RENDERIZAR AGENDAMENTOS (DRAG & DROP) ==========
+            function renderSchedule() {
+                if (!scheduleGrid) return;
+                
+                scheduleGrid.innerHTML = '';
+                
+                state.slots.forEach((slot, index) => {
+                    const card = document.createElement('div');
+                    card.className = `schedule-card ${slot.status === 'disponivel' ? 'available' : ''}`;
+                    card.draggable = slot.status === 'disponivel';
+                    card.dataset.index = index;
+                    
+                    card.innerHTML = `
+                        <div class="schedule-time">${slot.time}</div>
+                        <div class="schedule-info">
+                            ${slot.prof ? `
+                                <div class="schedule-prof">
+                                    <i class="bi bi-person-badge"></i>
+                                    <span>${slot.prof}</span>
+                                </div>
+                            ` : ''}
+                            ${slot.turma ? `
+                                <div class="schedule-turma">
+                                    <i class="bi bi-people"></i>
+                                    <span>${slot.turma}</span>
+                                </div>
+                            ` : ''}
+                            <div class="schedule-status status-${slot.status}">
+                                ${slot.status === 'reservado' ? 'Reservado' : 'Disponível'}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Drag & Drop
+                    card.addEventListener('dragstart', (e) => {
+                        if (slot.status === 'disponivel') {
+                            card.classList.add('dragging');
+                            e.dataTransfer.setData('text/plain', index);
+                        } else {
+                            e.preventDefault();
+                        }
+                    });
+                    
+                    card.addEventListener('dragend', () => {
+                        card.classList.remove('dragging');
+                    });
+                    
+                    scheduleGrid.appendChild(card);
+                });
+                
+                // Drop zones
+                scheduleGrid.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                scheduleGrid.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedIndex = e.dataTransfer.getData('text/plain');
+                    // Aqui você implementaria a lógica de agendamento
+                    alert(`Horário ${state.slots[draggedIndex].time} agendado!`);
+                });
+            }
+
+            // ========== ATUALIZAR OCUPAÇÃO ==========
+            function updateOccupancy() {
+                const total = state.slots.length;
+                const reserved = state.slots.filter(s => s.status === 'reservado').length;
+                const percent = Math.round((reserved / total) * 100);
+                
+                if (occupancyFill) occupancyFill.style.width = percent + '%';
+                if (occupancyPercent) occupancyPercent.textContent = percent + '%';
+            }
+
+            // ========== NAVEGAÇÃO ENTRE VIEWS ==========
+            function navigateTo(viewId) {
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById(`view-${viewId}`).classList.add('active');
+                
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelector(`.nav-link[data-view="${viewId}"]`).classList.add('active');
+                
+                const titles = {
+                    menu: 'Dashboard',
+                    calendario: 'Calendário',
+                    reservas: 'Laboratórios',
+                    monitoria: 'Monitoria'
+                };
+                document.getElementById('page-title').textContent = titles[viewId];
+                
+                if (viewId === 'calendario') {
+                    renderCalendar();
+                    renderSchedule();
+                    updateOccupancy();
+                    if (selectedDateDisplay) {
+                        selectedDateDisplay.textContent = formatDateLong(state.currentDate);
+                    }
+                } else if (viewId === 'monitoria') {
+                    renderMonitoria();
+                }
+            }
+
+            // ========== RENDERIZAR MONITORIA ==========
+            function renderMonitoria() {
+                const list = document.getElementById('monitoria-list');
+                if (!list) return;
+                
+                const postos = [
+                    { nome: 'Fila do Intervalo', monitor: 'Ana Beatriz', turma: '3º A' },
+                    { nome: 'Refeitório (Suco)', monitor: 'Carlos Eduardo', turma: '2º B' },
+                    { nome: 'Refeitório (Pratos)', monitor: 'Fernanda Lima', turma: '3º C' },
+                    { nome: 'Portaria Almoço', monitor: 'João Pedro', turma: '1º A' },
+                    { nome: 'Pátio Central', monitor: 'Mariana Souza', turma: '2º A' },
+                ];
+                
+                list.innerHTML = postos.map(posto => `
+                    <div class="schedule-card" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="margin-bottom: 5px;">${posto.nome}</h4>
+                            <p style="color: var(--text-muted);">${posto.monitor} - ${posto.turma}</p>
+                        </div>
+                        <button class="btn-premium">Editar</button>
+                    </div>
+                `).join('');
+            }
+
+            // ========== EVENT LISTENERS ==========
+            document.addEventListener('DOMContentLoaded', function() {
+                // Esconder loading
+                setTimeout(() => {
+                    loading.style.opacity = '0';
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                    }, 500);
+                }, 800);
+                
+                // Mostrar dashboard (simulando login automático para demonstração)
+                setTimeout(() => {
+                    dashboard.style.display = 'flex';
+                    
+                    // Inicializar
+                    renderCalendar();
+                    renderSchedule();
+                    updateOccupancy();
+                    
+                    if (selectedDateDisplay) {
+                        selectedDateDisplay.textContent = formatDateLong(state.currentDate);
+                    }
+                    
+                    // Iniciais do usuário
+                    const initials = 'AD';
+                    document.getElementById('user-initials').textContent = initials;
+                    document.getElementById('display-user-name').textContent = 'Administrador';
+                }, 1000);
+                
+                // Navegação
+                document.querySelectorAll('[data-view]').forEach(el => {
+                    el.addEventListener('click', () => navigateTo(el.dataset.view));
+                });
+                
+                // Botões do calendário
+                document.getElementById('prev-month')?.addEventListener('click', () => {
+                    state.currentDate.setMonth(state.currentDate.getMonth() - 1);
+                    renderCalendar();
+                });
+                
+                document.getElementById('next-month')?.addEventListener('click', () => {
+                    state.currentDate.setMonth(state.currentDate.getMonth() + 1);
+                    renderCalendar();
+                });
+                
+                // Quick months
+                document.querySelectorAll('.quick-month').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.quick-month').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const meses = ['Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'];
+                        const monthIndex = meses.indexOf(this.textContent);
+                        if (monthIndex !== -1) {
+                            state.currentDate.setMonth(monthIndex + 1); // Fevereiro é mês 1
+                            renderCalendar();
+                        }
+                    });
+                });
+                
+                // View toggle (mês/semana/dia)
+                document.querySelectorAll('[data-view-type]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('[data-view-type]').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        state.viewType = this.dataset.viewType;
+                        renderCalendar();
+                    });
+                });
+                
+                // Lab tabs
+                document.querySelectorAll('.lab-tab').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.lab-tab').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        state.currentLab = this.dataset.lab;
+                        
+                        // Atualizar dados simulados
+                        if (state.currentLab === 'Informática') {
+                            state.slots = [
+                                { time: '07:20 - 08:10', prof: 'João Silva', turma: '3º A', status: 'reservado' },
+                                { time: '08:10 - 09:00', prof: 'Maria Santos', turma: '2º B', status: 'reservado' },
+                                { time: '09:20 - 10:10', prof: '', turma: '', status: 'disponivel' },
+                                { time: '10:10 - 11:00', prof: 'Carlos Lima', turma: '1º C', status: 'reservado' },
+                                { time: '11:00 - 11:50', prof: '', turma: '', status: 'disponivel' },
+                            ];
+                        } else if (state.currentLab === 'Hardware') {
+                            state.slots = [
+                                { time: '07:20 - 08:10', prof: 'Pedro Alves', turma: '2º A', status: 'reservado' },
+                                { time: '08:10 - 09:00', prof: '', turma: '', status: 'disponivel' },
+                                { time: '09:20 - 10:10', prof: 'Ana Costa', turma: '3º B', status: 'reservado' },
+                                { time: '10:10 - 11:00', prof: 'Lucas Mendes', turma: '1º B', status: 'reservado' },
+                                { time: '11:00 - 11:50', prof: '', turma: '', status: 'disponivel' },
+                            ];
+                        } else {
+                            state.slots = [
+                                { time: '07:20 - 08:10', prof: '', turma: '', status: 'disponivel' },
+                                { time: '08:10 - 09:00', prof: 'Julia Lima', turma: '3º C', status: 'reservado' },
+                                { time: '09:20 - 10:10', prof: 'Roberto Carlos', turma: '2º A', status: 'reservado' },
+                                { time: '10:10 - 11:00', prof: '', turma: '', status: 'disponivel' },
+                                { time: '11:00 - 11:50', prof: 'Patricia Souza', turma: '1º A', status: 'reservado' },
+                            ];
+                        }
+                        
+                        renderSchedule();
+                        updateOccupancy();
+                    });
+                });
+                
+                // Hoje
+                document.getElementById('today-btn')?.addEventListener('click', () => {
+                    state.currentDate = new Date();
+                    renderCalendar();
+                });
+                
+                // Fullscreen
+                document.getElementById('fullscreen-toggle')?.addEventListener('click', () => {
+                    const calendar = document.getElementById('main-calendar');
+                    if (calendar) {
+                        calendar.classList.toggle('fullscreen');
+                        document.getElementById('fullscreen-toggle').innerHTML = calendar.classList.contains('fullscreen') ? 
+                            '<i class="bi bi-fullscreen-exit"></i>' : '<i class="bi bi-arrows-fullscreen"></i>';
+                    }
+                });
+                
+                // Tema
+                document.getElementById('theme-toggle')?.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-theme');
+                    const icon = document.getElementById('theme-icon');
+                    icon.className = document.body.classList.contains('dark-theme') ? 'bi bi-sun' : 'bi bi-moon-stars';
+                });
+                
+                // Logout
+                document.getElementById('logout-btn')?.addEventListener('click', () => {
+                    location.reload();
                 });
             });
-            renderMonCalendar();
-            showToast("🧹 Semana limpa!", 'success');
-        }
-
-        // Inicialização
-        window.onload = function() {
-            // Se já estiver logado (por exemplo, se o usuário não deslogou), podemos verificar se há user salvo?
-            // Por simplicidade, mantemos a tela de login sempre visível até login.
-        };
+        })();
     </script>
 </body>
 </html>
