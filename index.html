@@ -2,11 +2,12 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGE | EEEP Miguel Gurgel - Calendário Extraordinário</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>SGE | EEEP Miguel Gurgel - Ultra Responsivo</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ===== RESET E VARIÁVEIS ===== */
         * {
             margin: 0;
             padding: 0;
@@ -32,6 +33,22 @@
             --radius: 24px;
             --radius-sm: 16px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Responsive Font Sizes */
+            --fs-xs: clamp(0.75rem, 2vw, 0.875rem);
+            --fs-sm: clamp(0.875rem, 2.5vw, 1rem);
+            --fs-md: clamp(1rem, 3vw, 1.125rem);
+            --fs-lg: clamp(1.125rem, 4vw, 1.5rem);
+            --fs-xl: clamp(1.5rem, 5vw, 2rem);
+            --fs-2xl: clamp(2rem, 6vw, 2.5rem);
+            --fs-3xl: clamp(2.5rem, 7vw, 3rem);
+            
+            /* Spacing */
+            --space-xs: clamp(0.5rem, 1vw, 0.75rem);
+            --space-sm: clamp(0.75rem, 2vw, 1rem);
+            --space-md: clamp(1rem, 3vw, 1.5rem);
+            --space-lg: clamp(1.5rem, 4vw, 2rem);
+            --space-xl: clamp(2rem, 5vw, 3rem);
         }
 
         .dark-theme {
@@ -49,31 +66,72 @@
             transition: var(--transition);
             min-height: 100vh;
             overflow-x: hidden;
+            font-size: var(--fs-md);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Animações */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+        /* ===== UTILITÁRIOS RESPONSIVOS ===== */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        .hide-mobile {
+            display: none;
+        }
+        
+        .show-mobile {
+            display: block;
+        }
+
+        @media (min-width: 768px) {
+            .hide-mobile {
+                display: block;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .show-mobile {
+                display: none;
             }
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
-            50% { box-shadow: 0 0 40px var(--accent-glow); }
+        /* ===== LOADING ===== */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.5s;
         }
 
-        /* Dashboard Layout */
+        .loading-spinner {
+            width: min(50px, 10vw);
+            height: min(50px, 10vw);
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== DASHBOARD LAYOUT ===== */
         #dashboard {
             display: none;
             min-height: 100vh;
         }
 
+        /* Sidebar - Desktop */
         .sidebar {
             width: 280px;
             background: var(--bg-side);
@@ -82,21 +140,22 @@
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 2rem 1.5rem;
+            padding: var(--space-lg) var(--space-md);
             z-index: 1000;
             transition: var(--transition);
+            overflow-y: auto;
         }
 
         .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 0 0.5rem 2.5rem;
+            gap: var(--space-sm);
+            padding: 0 0.5rem var(--space-xl) 0.5rem;
         }
 
         .logo-premium {
-            width: 40px;
-            height: 40px;
+            width: clamp(32px, 5vw, 40px);
+            height: clamp(32px, 5vw, 40px);
             background: linear-gradient(135deg, var(--accent), #fbbf24);
             color: #000;
             display: flex;
@@ -104,23 +163,25 @@
             justify-content: center;
             border-radius: 12px;
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: var(--fs-lg);
             box-shadow: 0 10px 20px -5px var(--accent-glow);
+            flex-shrink: 0;
         }
 
         .sidebar-brand span {
-            font-size: 1.4rem;
+            font-size: var(--fs-xl);
             font-weight: 700;
             letter-spacing: -0.5px;
+            white-space: nowrap;
         }
 
         .nav-link {
             background: transparent;
             border: none;
-            padding: 1rem 1rem;
+            padding: var(--space-md);
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: var(--space-sm);
             border-radius: 14px;
             cursor: pointer;
             color: var(--text-muted);
@@ -129,11 +190,13 @@
             margin-bottom: 0.5rem;
             width: 100%;
             text-align: left;
-            font-size: 1rem;
+            font-size: var(--fs-md);
+            white-space: nowrap;
         }
 
         .nav-link i {
-            font-size: 1.3rem;
+            font-size: var(--fs-xl);
+            flex-shrink: 0;
         }
 
         .nav-link:hover {
@@ -151,21 +214,26 @@
         .sidebar-footer {
             margin-top: auto;
             display: flex;
-            gap: 10px;
-            padding-top: 1.5rem;
+            gap: var(--space-xs);
+            padding-top: var(--space-lg);
             border-top: 1px solid var(--border);
+            flex-wrap: wrap;
         }
 
         .btn-icon {
             background: var(--bg-main);
             border: 1px solid var(--border);
-            width: 44px;
-            height: 44px;
+            width: clamp(40px, 8vw, 44px);
+            height: clamp(40px, 8vw, 44px);
             border-radius: 12px;
             cursor: pointer;
             color: var(--text-main);
             transition: var(--transition);
-            font-size: 1.2rem;
+            font-size: var(--fs-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         .btn-icon:hover {
@@ -176,21 +244,25 @@
 
         .main-content {
             margin-left: 280px;
-            padding: 2rem 2.5rem;
+            padding: var(--space-lg);
             min-height: 100vh;
+            transition: var(--transition);
+            width: calc(100% - 280px);
         }
 
-        /* Top Bar Premium */
+        /* Top Bar Premium - Responsivo */
         .top-bar-premium {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: var(--space-xl);
             animation: slideIn 0.5s ease;
+            flex-wrap: wrap;
+            gap: var(--space-md);
         }
 
         .page-info h1 {
-            font-size: 2.2rem;
+            font-size: var(--fs-2xl);
             font-weight: 700;
             background: linear-gradient(135deg, var(--text-main), var(--accent));
             -webkit-background-clip: text;
@@ -206,7 +278,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            width: 300px;
+            width: min(100%, 300px);
             transition: var(--transition);
         }
 
@@ -221,7 +293,11 @@
             outline: none;
             color: var(--text-main);
             width: 100%;
-            font-size: 0.95rem;
+            font-size: var(--fs-sm);
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-muted);
         }
 
         .search-bar button {
@@ -229,22 +305,23 @@
             border: none;
             color: var(--accent);
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: var(--fs-lg);
+            padding: 5px;
         }
 
         .user-premium {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: var(--space-sm);
             background: var(--bg-card);
-            padding: 8px 20px 8px 12px;
+            padding: var(--space-xs) var(--space-md);
             border-radius: 50px;
             border: 1px solid var(--border);
         }
 
         .user-avatar-premium {
-            width: 42px;
-            height: 42px;
+            width: clamp(36px, 6vw, 42px);
+            height: clamp(36px, 6vw, 42px);
             background: linear-gradient(135deg, var(--accent), #fbbf24);
             color: #000;
             border-radius: 50%;
@@ -252,30 +329,33 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: var(--fs-md);
+            flex-shrink: 0;
         }
 
-        /* Lab Selector Extraordinário */
+        /* Lab Selector - Ultra Responsivo */
         .lab-selector-premium {
-            margin-bottom: 2.5rem;
+            margin-bottom: var(--space-xl);
             animation: slideIn 0.6s ease;
         }
 
         .lab-tabs {
             display: flex;
-            gap: 10px;
+            gap: var(--space-xs);
             background: var(--bg-card);
-            padding: 8px;
+            padding: var(--space-xs);
             border-radius: 60px;
             border: 1px solid var(--border);
             width: fit-content;
+            max-width: 100%;
             box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
         }
 
         .lab-tab {
             border: none;
             background: transparent;
-            padding: 1rem 2rem;
+            padding: var(--space-sm) var(--space-md);
             border-radius: 50px;
             cursor: pointer;
             color: var(--text-muted);
@@ -283,12 +363,13 @@
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1rem;
+            gap: var(--space-xs);
+            font-size: var(--fs-sm);
+            white-space: nowrap;
         }
 
         .lab-tab i {
-            font-size: 1.3rem;
+            font-size: var(--fs-lg);
         }
 
         .lab-tab:hover {
@@ -307,25 +388,26 @@
         }
 
         .lab-info-bar {
-            margin-top: 1.5rem;
+            margin-top: var(--space-lg);
             display: flex;
-            gap: 20px;
+            gap: var(--space-md);
             align-items: center;
             flex-wrap: wrap;
         }
 
         .occupancy-card {
             background: var(--bg-card);
-            padding: 0.8rem 1.5rem;
+            padding: var(--space-sm) var(--space-lg);
             border-radius: 50px;
             border: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: var(--space-md);
+            flex-wrap: wrap;
         }
 
         .occupancy-bar {
-            width: 200px;
+            width: min(200px, 30vw);
             height: 8px;
             background: var(--border);
             border-radius: 10px;
@@ -341,22 +423,24 @@
 
         .view-toggle {
             display: flex;
-            gap: 8px;
+            gap: var(--space-xs);
             background: var(--bg-card);
             padding: 5px;
             border-radius: 40px;
             border: 1px solid var(--border);
+            flex-wrap: wrap;
         }
 
         .view-toggle button {
             border: none;
             background: transparent;
-            padding: 0.6rem 1.2rem;
+            padding: var(--space-xs) var(--space-md);
             border-radius: 30px;
             cursor: pointer;
             color: var(--text-muted);
             font-weight: 500;
             transition: var(--transition);
+            font-size: var(--fs-sm);
         }
 
         .view-toggle button.active {
@@ -364,31 +448,36 @@
             color: #000;
         }
 
-        /* Calendário Extraordinário (inspirado na sua imagem) */
+        /* ===== CALENDÁRIO ULTRA RESPONSIVO ===== */
         .calendar-premium {
             background: var(--bg-card);
             border-radius: var(--radius);
             border: 1px solid var(--border);
-            padding: 2rem;
+            padding: var(--space-lg);
             box-shadow: var(--shadow-lg);
             animation: slideIn 0.7s ease;
+            width: 100%;
+            overflow-x: auto;
         }
 
         .calendar-header-premium {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
         }
 
         .month-selector {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: var(--space-md);
+            flex-wrap: wrap;
         }
 
         .month-selector h2 {
-            font-size: 2rem;
+            font-size: var(--fs-2xl);
             font-weight: 700;
             background: linear-gradient(135deg, var(--text-main), var(--accent));
             -webkit-background-clip: text;
@@ -397,19 +486,22 @@
 
         .month-nav {
             display: flex;
-            gap: 10px;
+            gap: var(--space-xs);
         }
 
         .month-nav button {
-            width: 44px;
-            height: 44px;
+            width: clamp(40px, 8vw, 44px);
+            height: clamp(40px, 8vw, 44px);
             border-radius: 14px;
             border: 1px solid var(--border);
             background: var(--bg-main);
             color: var(--text-main);
             cursor: pointer;
             transition: var(--transition);
-            font-size: 1.2rem;
+            font-size: var(--fs-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .month-nav button:hover {
@@ -420,19 +512,21 @@
 
         .quick-months {
             display: flex;
-            gap: 10px;
+            gap: var(--space-xs);
+            flex-wrap: wrap;
         }
 
         .quick-month {
             border: none;
             background: var(--bg-main);
-            padding: 0.5rem 1.2rem;
+            padding: var(--space-xs) var(--space-md);
             border-radius: 30px;
             cursor: pointer;
             color: var(--text-muted);
             font-weight: 500;
             transition: var(--transition);
             border: 1px solid transparent;
+            font-size: var(--fs-sm);
         }
 
         .quick-month:hover {
@@ -445,26 +539,28 @@
             color: #000;
         }
 
+        /* Grid do Calendário - Totalmente Responsivo */
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(7, minmax(min(100px, 12vw), 1fr));
+            gap: clamp(5px, 1vw, 10px);
+            margin-bottom: var(--space-xl);
+            min-width: min(100%, 100%);
         }
 
         .calendar-weekday {
             text-align: center;
             font-weight: 600;
             color: var(--text-muted);
-            font-size: 0.9rem;
-            padding: 1rem 0;
+            font-size: var(--fs-xs);
+            padding: var(--space-sm) 0;
         }
 
         .calendar-day {
             aspect-ratio: 1;
             background: var(--bg-main);
             border-radius: var(--radius-sm);
-            padding: 10px;
+            padding: var(--space-xs);
             cursor: pointer;
             transition: var(--transition);
             border: 2px solid transparent;
@@ -472,6 +568,7 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
+            min-height: 0;
         }
 
         .calendar-day:hover {
@@ -491,22 +588,24 @@
 
         .day-number {
             font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 5px;
+            font-size: clamp(0.8rem, 3vw, 1.2rem);
+            margin-bottom: var(--space-xs);
         }
 
         .day-events {
             margin-top: auto;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
+            max-height: 100%;
+            overflow: hidden;
         }
 
         .event-badge {
             background: var(--accent);
             color: #000;
-            font-size: 0.7rem;
-            padding: 2px 6px;
+            font-size: clamp(0.5rem, 1.5vw, 0.7rem);
+            padding: 2px 4px;
             border-radius: 20px;
             font-weight: 600;
             white-space: nowrap;
@@ -526,7 +625,7 @@
         }
 
         .more-indicator {
-            font-size: 0.7rem;
+            font-size: clamp(0.5rem, 1.5vw, 0.7rem);
             color: var(--text-muted);
             font-weight: 600;
         }
@@ -535,27 +634,31 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 2rem;
-            padding-top: 1rem;
+            margin-top: var(--space-xl);
+            padding-top: var(--space-lg);
             border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: var(--space-md);
         }
 
         .legend {
             display: flex;
-            gap: 20px;
+            gap: var(--space-md);
+            flex-wrap: wrap;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
+            gap: var(--space-xs);
+            font-size: var(--fs-xs);
         }
 
         .legend-color {
             width: 12px;
             height: 12px;
             border-radius: 4px;
+            flex-shrink: 0;
         }
 
         .legend-color.holiday { background: #ef4444; }
@@ -564,13 +667,14 @@
 
         .calendar-actions {
             display: flex;
-            gap: 10px;
+            gap: var(--space-xs);
+            flex-wrap: wrap;
         }
 
         .btn-premium {
             border: none;
             background: var(--bg-main);
-            padding: 0.8rem 1.5rem;
+            padding: var(--space-sm) var(--space-md);
             border-radius: 40px;
             cursor: pointer;
             color: var(--text-main);
@@ -579,7 +683,9 @@
             border: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-xs);
+            font-size: var(--fs-sm);
+            white-space: nowrap;
         }
 
         .btn-premium:hover {
@@ -600,13 +706,13 @@
             box-shadow: 0 20px 30px -5px var(--accent-glow);
         }
 
-        /* Schedule Panel */
+        /* Schedule Panel - Cards Responsivos */
         .schedule-panel {
-            margin-top: 2.5rem;
+            margin-top: var(--space-xl);
             background: var(--bg-card);
             border-radius: var(--radius);
             border: 1px solid var(--border);
-            padding: 2rem;
+            padding: var(--space-lg);
             animation: slideIn 0.8s ease;
         }
 
@@ -614,27 +720,34 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
         }
 
         .schedule-header h3 {
-            font-size: 1.5rem;
+            font-size: var(--fs-xl);
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
         }
 
         .schedule-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+            gap: var(--space-md);
         }
 
         .schedule-card {
             background: var(--bg-main);
             border-radius: var(--radius-sm);
-            padding: 1.5rem;
+            padding: var(--space-lg);
             border: 1px solid var(--border);
             transition: var(--transition);
             cursor: grab;
+            min-width: 0;
+            width: 100%;
         }
 
         .schedule-card:active {
@@ -653,42 +766,39 @@
         }
 
         .schedule-time {
-            font-size: 1.1rem;
+            font-size: var(--fs-lg);
             font-weight: 700;
             color: var(--accent);
-            margin-bottom: 1rem;
+            margin-bottom: var(--space-md);
         }
 
         .schedule-info {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: var(--space-xs);
         }
 
-        .schedule-prof {
+        .schedule-prof, .schedule-turma {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--space-xs);
+            font-size: var(--fs-sm);
+            word-break: break-word;
         }
 
-        .schedule-prof i {
+        .schedule-prof i, .schedule-turma i {
             color: var(--accent);
-        }
-
-        .schedule-turma {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-muted);
+            flex-shrink: 0;
         }
 
         .schedule-status {
             display: inline-block;
-            padding: 0.3rem 1rem;
+            padding: var(--space-xs) var(--space-md);
             border-radius: 30px;
-            font-size: 0.8rem;
+            font-size: var(--fs-xs);
             font-weight: 600;
-            margin-top: 1rem;
+            margin-top: var(--space-sm);
+            align-self: flex-start;
         }
 
         .status-reservado {
@@ -699,27 +809,6 @@
         .status-disponivel {
             background: rgba(100, 116, 139, 0.1);
             color: var(--text-muted);
-        }
-
-        .drop-zone {
-            border: 2px dashed var(--accent);
-            background: var(--accent-soft);
-            transform: scale(1.02);
-        }
-
-        /* Tooltip */
-        .tooltip {
-            position: absolute;
-            background: var(--bg-card);
-            color: var(--text-main);
-            padding: 1rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
-            max-width: 250px;
-            z-index: 10000;
-            pointer-events: none;
-            transition: opacity 0.2s;
         }
 
         /* Fullscreen */
@@ -733,69 +822,325 @@
             margin: 0;
             border-radius: 0;
             overflow-y: auto;
+            padding: var(--space-xl);
         }
 
-        /* Responsividade */
-        @media (max-width: 1200px) {
-            .main-content {
-                margin-left: 280px;
-                padding: 2rem;
-            }
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: var(--bg-card);
+            color: var(--text-main);
+            padding: var(--space-md);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            max-width: min(250px, 80vw);
+            z-index: 10000;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            font-size: var(--fs-sm);
         }
 
+        /* ===== MOBILE BOTTOM NAV (aparece apenas em mobile) ===== */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-side);
+            border-top: 1px solid var(--border);
+            padding: var(--space-xs) var(--space-md);
+            z-index: 999;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        }
+
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: var(--fs-xs);
+            padding: var(--space-xs);
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 12px;
+            flex: 1;
+        }
+
+        .mobile-nav-item i {
+            font-size: var(--fs-xl);
+        }
+
+        .mobile-nav-item.active {
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .mobile-nav-item span {
+            font-size: var(--fs-xs);
+            white-space: nowrap;
+        }
+
+        /* ===== MEDIA QUERIES PRINCIPAIS ===== */
+
+        /* Tablets e celulares grandes */
         @media (max-width: 1024px) {
             .sidebar {
                 width: 90px;
-                padding: 2rem 0.8rem;
+                padding: var(--space-md) var(--space-xs);
             }
+            
             .sidebar-brand span,
             .nav-link span {
                 display: none;
             }
+            
+            .nav-link {
+                justify-content: center;
+                padding: var(--space-md) 0;
+            }
+            
+            .nav-link i {
+                font-size: var(--fs-xl);
+            }
+            
             .main-content {
                 margin-left: 90px;
+                width: calc(100% - 90px);
+                padding: var(--space-md);
             }
-            .calendar-grid {
-                grid-template-columns: repeat(7, minmax(80px, 1fr));
+            
+            .sidebar-footer {
+                justify-content: center;
             }
         }
 
+        /* Tablets */
         @media (max-width: 768px) {
+            .main-content {
+                padding: var(--space-md) var(--space-sm);
+            }
+            
             .calendar-header-premium {
                 flex-direction: column;
-                gap: 1rem;
+                align-items: flex-start;
             }
+            
             .quick-months {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .lab-tabs {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .lab-tab {
+                flex: 1;
+                justify-content: center;
+                white-space: normal;
+                text-align: center;
+            }
+            
+            .lab-info-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .occupancy-card {
+                justify-content: space-between;
+            }
+            
+            .calendar-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .calendar-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .btn-premium {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .schedule-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Celulares */
+        @media (max-width: 640px) {
+            :root {
+                --radius: 20px;
+                --radius-sm: 12px;
+            }
+            
+            .sidebar {
+                display: none; /* Esconde sidebar em celular */
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: var(--space-md) var(--space-sm) calc(70px + var(--space-md)) var(--space-sm);
+            }
+            
+            .mobile-bottom-nav {
+                display: block;
+            }
+            
+            .top-bar-premium {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .user-premium {
+                width: fit-content;
+                align-self: flex-end;
+            }
+            
+            .calendar-grid {
+                gap: 3px;
+            }
+            
+            .calendar-day {
+                padding: 4px;
+            }
+            
+            .day-number {
+                font-size: var(--fs-xs);
+            }
+            
+            .event-badge {
+                font-size: 0.45rem;
+                padding: 1px 2px;
+            }
+            
+            .legend {
+                gap: var(--space-xs);
+            }
+            
+            .legend-item {
+                font-size: 0.6rem;
+            }
+            
+            .calendar-actions {
                 flex-wrap: wrap;
             }
+            
+            .btn-premium {
+                padding: var(--space-xs) var(--space-sm);
+                font-size: var(--fs-xs);
+            }
+            
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        /* Loading */
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--bg-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-            transition: opacity 0.5s;
+        /* Celulares muito pequenos (iPhone SE) */
+        @media (max-width: 375px) {
+            .calendar-weekday {
+                font-size: 0.6rem;
+            }
+            
+            .day-number {
+                font-size: 0.7rem;
+            }
+            
+            .event-badge {
+                display: none; /* Esconde badges em telas muito pequenas */
+            }
+            
+            .more-indicator {
+                font-size: 0.5rem;
+            }
+            
+            .legend-item {
+                font-size: 0.5rem;
+            }
+            
+            .legend-color {
+                width: 8px;
+                height: 8px;
+            }
         }
 
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* Telas muito grandes (TVs, monitores 4K) */
+        @media (min-width: 1920px) {
+            .main-content {
+                max-width: 1800px;
+                margin: 0 auto;
+                margin-left: 280px;
+            }
+            
+            .calendar-grid {
+                gap: 20px;
+            }
+            
+            .calendar-day {
+                padding: var(--space-lg);
+            }
+            
+            .day-number {
+                font-size: 1.5rem;
+            }
+            
+            .event-badge {
+                font-size: 0.9rem;
+                padding: 4px 8px;
+            }
+            
+            .schedule-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* Orientação paisagem em celulares */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .mobile-bottom-nav {
+                display: none;
+            }
+            
+            .main-content {
+                padding-bottom: var(--space-md);
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+            }
+        }
+
+        /* Animações */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -804,8 +1149,31 @@
         <div class="loading-spinner"></div>
     </div>
 
+    <!-- MOBILE BOTTOM NAVIGATION (aparece apenas em celular) -->
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-nav-items">
+            <button class="mobile-nav-item active" data-view="menu">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Início</span>
+            </button>
+            <button class="mobile-nav-item" data-view="calendario">
+                <i class="bi bi-calendar-week"></i>
+                <span>Calendário</span>
+            </button>
+            <button class="mobile-nav-item" data-view="reservas">
+                <i class="bi bi-pc-display"></i>
+                <span>Labs</span>
+            </button>
+            <button class="mobile-nav-item" data-view="monitoria">
+                <i class="bi bi-people"></i>
+                <span>Monitores</span>
+            </button>
+        </div>
+    </nav>
+
     <!-- DASHBOARD PRINCIPAL -->
     <div id="dashboard">
+        <!-- Sidebar Desktop -->
         <aside class="sidebar">
             <div class="sidebar-brand">
                 <div class="logo-premium">MG</div>
@@ -848,7 +1216,7 @@
                 </div>
                 <div class="user-premium">
                     <div class="user-avatar-premium" id="user-initials">AD</div>
-                    <div>
+                    <div class="hide-mobile">
                         <strong id="display-user-name">Usuário</strong>
                     </div>
                 </div>
@@ -856,56 +1224,59 @@
 
             <!-- VIEW DASHBOARD -->
             <div id="view-menu" class="view active">
-                <div style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 3rem; border-radius: var(--radius); margin-bottom: 2rem;">
-                    <h2 style="font-size: 2rem; margin-bottom: 1rem;">Bem-vindo ao <span style="color: var(--accent);">SGE Extraordinário</span></h2>
-                    <p style="opacity: 0.9; font-size: 1.1rem;">Uma nova experiência em gestão de laboratórios e monitorias.</p>
+                <div class="calendar-premium" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white;">
+                    <h2 style="font-size: var(--fs-2xl); margin-bottom: var(--space-md);">Bem-vindo ao <span style="color: var(--accent);">SGE Ultra-Responsivo</span></h2>
+                    <p style="opacity: 0.9; font-size: var(--fs-md);">Acesse de qualquer dispositivo! Celular, tablet, PC ou TV.</p>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-                    <div class="calendar-premium" style="padding: 2rem; cursor: pointer;" data-view="calendario">
-                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
-                            <i class="bi bi-calendar-check" style="color: var(--accent);"></i>
-                            Calendário de Reservas
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--space-lg); margin-top: var(--space-xl);">
+                    <div class="calendar-premium" style="padding: var(--space-lg); cursor: pointer;" data-view="calendario">
+                        <h3 style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                            <i class="bi bi-calendar-check" style="color: var(--accent); font-size: var(--fs-xl);"></i>
+                            <span style="font-size: var(--fs-lg);">Calendário</span>
                         </h3>
-                        <p>Veja todos os agendamentos em uma visão mensal completa.</p>
-                        <div style="margin-top: 1rem; color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
+                        <p style="font-size: var(--fs-sm);">Veja todos os agendamentos em uma visão mensal completa.</p>
+                        <div style="margin-top: var(--space-md); color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
                     </div>
                     
-                    <div class="calendar-premium" style="padding: 2rem; cursor: pointer;" data-view="reservas">
-                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
-                            <i class="bi bi-pc-display" style="color: var(--accent);"></i>
-                            Laboratórios
+                    <div class="calendar-premium" style="padding: var(--space-lg); cursor: pointer;" data-view="reservas">
+                        <h3 style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                            <i class="bi bi-pc-display" style="color: var(--accent); font-size: var(--fs-xl);"></i>
+                            <span style="font-size: var(--fs-lg);">Laboratórios</span>
                         </h3>
-                        <p>Gerencie reservas dos laboratórios de Informática, Hardware e Multimídia.</p>
-                        <div style="margin-top: 1rem; color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
+                        <p style="font-size: var(--fs-sm);">Gerencie reservas dos laboratórios.</p>
+                        <div style="margin-top: var(--space-md); color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
                     </div>
                     
-                    <div class="calendar-premium" style="padding: 2rem; cursor: pointer;" data-view="monitoria">
-                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
-                            <i class="bi bi-people" style="color: var(--accent);"></i>
-                            Monitoria
+                    <div class="calendar-premium" style="padding: var(--space-lg); cursor: pointer;" data-view="monitoria">
+                        <h3 style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                            <i class="bi bi-people" style="color: var(--accent); font-size: var(--fs-xl);"></i>
+                            <span style="font-size: var(--fs-lg);">Monitoria</span>
                         </h3>
-                        <p>Escala diária dos monitores nos postos de apoio.</p>
-                        <div style="margin-top: 1rem; color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
+                        <p style="font-size: var(--fs-sm);">Escala diária dos monitores.</p>
+                        <div style="margin-top: var(--space-md); color: var(--accent); font-weight: 600;">Acessar <i class="bi bi-arrow-right"></i></div>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW CALENDÁRIO EXTRAORDINÁRIO -->
+            <!-- VIEW CALENDÁRIO -->
             <div id="view-calendario" class="view">
                 <div class="lab-selector-premium">
                     <div class="lab-tabs">
                         <button class="lab-tab active" data-lab="Informática">
                             <i class="bi bi-pc-display"></i>
-                            <span>Lab Informática (LEI)</span>
+                            <span class="hide-mobile">Lab Informática</span>
+                            <span class="show-mobile">Info</span>
                         </button>
                         <button class="lab-tab" data-lab="Hardware">
                             <i class="bi bi-motherboard"></i>
-                            <span>Lab Hardware</span>
+                            <span class="hide-mobile">Lab Hardware</span>
+                            <span class="show-mobile">HW</span>
                         </button>
                         <button class="lab-tab" data-lab="Multimídia">
                             <i class="bi bi-camera-reels"></i>
-                            <span>Lab Multimídia</span>
+                            <span class="hide-mobile">Lab Multimídia</span>
+                            <span class="show-mobile">MM</span>
                         </button>
                     </div>
                     
@@ -926,7 +1297,7 @@
                     </div>
                 </div>
 
-                <!-- CALENDÁRIO PREMIUM (INSPIRADO NA IMAGEM) -->
+                <!-- CALENDÁRIO -->
                 <div class="calendar-premium" id="main-calendar">
                     <div class="calendar-header-premium">
                         <div class="month-selector">
@@ -955,36 +1326,42 @@
                         <div class="legend">
                             <div class="legend-item">
                                 <div class="legend-color holiday"></div>
-                                <span>Feriado</span>
+                                <span class="hide-mobile">Feriado</span>
+                                <span class="show-mobile">Fer.</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color cultural"></div>
-                                <span>Evento Cultural</span>
+                                <span class="hide-mobile">Evento Cultural</span>
+                                <span class="show-mobile">Cult.</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color event"></div>
-                                <span>Reserva</span>
+                                <span class="hide-mobile">Reserva</span>
+                                <span class="show-mobile">Res.</span>
                             </div>
                         </div>
                         <div class="calendar-actions">
                             <button class="btn-premium" id="today-btn">
-                                <i class="bi bi-dot"></i> Hoje
+                                <i class="bi bi-dot"></i> <span class="hide-mobile">Hoje</span>
                             </button>
                             <button class="btn-premium" id="filter-btn">
-                                <i class="bi bi-funnel"></i> Filtrar
+                                <i class="bi bi-funnel"></i> <span class="hide-mobile">Filtrar</span>
                             </button>
                             <button class="btn-premium btn-premium-primary" id="new-event-btn">
-                                <i class="bi bi-plus-lg"></i> Novo Evento
+                                <i class="bi bi-plus-lg"></i> <span class="hide-mobile">Novo</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- PAINEL DE AGENDAMENTOS (DRAG & DROP) -->
+                <!-- PAINEL DE AGENDAMENTOS -->
                 <div class="schedule-panel">
                     <div class="schedule-header">
-                        <h3><i class="bi bi-calendar2-week" style="color: var(--accent); margin-right: 10px;"></i>Agendamentos do Dia</h3>
-                        <span id="selected-date-display" style="color: var(--text-muted);">15 de Fevereiro de 2026</span>
+                        <h3>
+                            <i class="bi bi-calendar2-week" style="color: var(--accent);"></i>
+                            <span>Agendamentos</span>
+                        </h3>
+                        <span id="selected-date-display" style="color: var(--text-muted); font-size: var(--fs-sm);">15 de Fevereiro de 2026</span>
                     </div>
                     <div class="schedule-grid" id="schedule-grid">
                         <!-- Cards serão inseridos via JS -->
@@ -992,12 +1369,12 @@
                 </div>
             </div>
 
-            <!-- VIEW RESERVAS (simplificada) -->
+            <!-- VIEW RESERVAS -->
             <div id="view-reservas" class="view">
-                <div class="calendar-premium" style="padding: 2rem;">
-                    <h2 style="margin-bottom: 2rem;">Gerenciamento de Laboratórios</h2>
-                    <p style="color: var(--text-muted);">Use o calendário completo para fazer suas reservas com drag & drop.</p>
-                    <button class="btn-premium btn-premium-primary" style="margin-top: 1rem;" data-view="calendario">
+                <div class="calendar-premium" style="padding: var(--space-xl);">
+                    <h2 style="font-size: var(--fs-xl); margin-bottom: var(--space-lg);">Gerenciamento de Laboratórios</h2>
+                    <p style="color: var(--text-muted); margin-bottom: var(--space-lg);">Use o calendário completo para fazer suas reservas com drag & drop.</p>
+                    <button class="btn-premium btn-premium-primary" data-view="calendario">
                         <i class="bi bi-calendar-week"></i> Ver Calendário Completo
                     </button>
                 </div>
@@ -1005,9 +1382,9 @@
 
             <!-- VIEW MONITORIA -->
             <div id="view-monitoria" class="view">
-                <div class="calendar-premium" style="padding: 2rem;">
-                    <h2 style="margin-bottom: 2rem;">Monitoria - Postos de Apoio</h2>
-                    <div style="display: grid; gap: 1rem;" id="monitoria-list">
+                <div class="calendar-premium" style="padding: var(--space-xl);">
+                    <h2 style="font-size: var(--fs-xl); margin-bottom: var(--space-lg);">Monitoria - Postos de Apoio</h2>
+                    <div style="display: grid; gap: var(--space-md);" id="monitoria-list">
                         <!-- Será preenchido via JS -->
                     </div>
                 </div>
@@ -1025,7 +1402,7 @@
                     email: 'admin@escola.com'
                 },
                 currentLab: 'Informática',
-                currentDate: new Date(2026, 1, 15), // 15 de Fevereiro 2026
+                currentDate: new Date(2026, 1, 15),
                 viewType: 'month',
                 events: {
                     '2026-02-03': [{ title: 'Carnaval', type: 'holiday' }],
@@ -1073,24 +1450,21 @@
                 
                 currentMonthTitle.textContent = getMonthName(state.currentDate).replace(/^[a-z]/, l => l.toUpperCase());
                 
-                const firstDay = new Date(year, month, 1).getDay(); // 0 = domingo
+                const firstDay = new Date(year, month, 1).getDay();
                 const lastDay = new Date(year, month + 1, 0).getDate();
                 
                 const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
                 
                 let html = '';
                 
-                // Weekday headers
                 weekdays.forEach(day => {
                     html += `<div class="calendar-weekday">${day}</div>`;
                 });
                 
-                // Dias vazios antes do primeiro dia
                 for (let i = 0; i < firstDay; i++) {
                     html += `<div class="calendar-day" style="opacity: 0.3; background: transparent;"></div>`;
                 }
                 
-                // Dias do mês
                 const today = new Date();
                 const todayStr = formatDateKey(today);
                 
@@ -1100,14 +1474,12 @@
                     const isToday = dateStr === todayStr;
                     const isSelected = dateStr === formatDateKey(state.currentDate);
                     
-                    // Eventos do dia
                     const dayEvents = state.events[dateStr] || [];
                     
                     html += `<div class="calendar-day ${isSelected ? 'active' : ''} ${isToday ? 'today' : ''}" data-date="${dateStr}">
                         <span class="day-number">${d}</span>
                         <div class="day-events">`;
                     
-                    // Mostrar até 2 eventos
                     dayEvents.slice(0, 2).forEach(event => {
                         html += `<div class="event-badge ${event.type}">${event.title}</div>`;
                     });
@@ -1121,7 +1493,6 @@
                 
                 calendarGrid.innerHTML = html;
                 
-                // Adicionar eventos de clique nos dias
                 document.querySelectorAll('.calendar-day[data-date]').forEach(day => {
                     day.addEventListener('click', (e) => {
                         const dateStr = day.dataset.date;
@@ -1129,13 +1500,11 @@
                         renderCalendar();
                         renderSchedule();
                         
-                        // Atualizar data selecionada
                         if (selectedDateDisplay) {
                             selectedDateDisplay.textContent = formatDateLong(state.currentDate);
                         }
                     });
                     
-                    // Tooltip ao passar o mouse
                     day.addEventListener('mouseenter', (e) => {
                         const dateStr = day.dataset.date;
                         const events = state.events[dateStr] || [];
@@ -1166,7 +1535,7 @@
                 });
             }
 
-            // ========== RENDERIZAR AGENDAMENTOS (DRAG & DROP) ==========
+            // ========== RENDERIZAR AGENDAMENTOS ==========
             function renderSchedule() {
                 if (!scheduleGrid) return;
                 
@@ -1199,7 +1568,6 @@
                         </div>
                     `;
                     
-                    // Drag & Drop
                     card.addEventListener('dragstart', (e) => {
                         if (slot.status === 'disponivel') {
                             card.classList.add('dragging');
@@ -1216,7 +1584,6 @@
                     scheduleGrid.appendChild(card);
                 });
                 
-                // Drop zones
                 scheduleGrid.addEventListener('dragover', (e) => {
                     e.preventDefault();
                 });
@@ -1224,7 +1591,6 @@
                 scheduleGrid.addEventListener('drop', (e) => {
                     e.preventDefault();
                     const draggedIndex = e.dataTransfer.getData('text/plain');
-                    // Aqui você implementaria a lógica de agendamento
                     alert(`Horário ${state.slots[draggedIndex].time} agendado!`);
                 });
             }
@@ -1244,8 +1610,8 @@
                 document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
                 document.getElementById(`view-${viewId}`).classList.add('active');
                 
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                document.querySelector(`.nav-link[data-view="${viewId}"]`).classList.add('active');
+                document.querySelectorAll('.nav-link, .mobile-nav-item').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll(`[data-view="${viewId}"]`).forEach(el => el.classList.add('active'));
                 
                 const titles = {
                     menu: 'Dashboard',
@@ -1253,7 +1619,9 @@
                     reservas: 'Laboratórios',
                     monitoria: 'Monitoria'
                 };
-                document.getElementById('page-title').textContent = titles[viewId];
+                
+                const pageTitle = document.getElementById('page-title');
+                if (pageTitle) pageTitle.textContent = titles[viewId];
                 
                 if (viewId === 'calendario') {
                     renderCalendar();
@@ -1281,19 +1649,18 @@
                 ];
                 
                 list.innerHTML = postos.map(posto => `
-                    <div class="schedule-card" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="schedule-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-sm);">
                         <div>
-                            <h4 style="margin-bottom: 5px;">${posto.nome}</h4>
-                            <p style="color: var(--text-muted);">${posto.monitor} - ${posto.turma}</p>
+                            <h4 style="margin-bottom: 5px; font-size: var(--fs-md);">${posto.nome}</h4>
+                            <p style="color: var(--text-muted); font-size: var(--fs-sm);">${posto.monitor} - ${posto.turma}</p>
                         </div>
-                        <button class="btn-premium">Editar</button>
+                        <button class="btn-premium" style="font-size: var(--fs-sm);">Editar</button>
                     </div>
                 `).join('');
             }
 
             // ========== EVENT LISTENERS ==========
             document.addEventListener('DOMContentLoaded', function() {
-                // Esconder loading
                 setTimeout(() => {
                     loading.style.opacity = '0';
                     setTimeout(() => {
@@ -1301,11 +1668,9 @@
                     }, 500);
                 }, 800);
                 
-                // Mostrar dashboard (simulando login automático para demonstração)
                 setTimeout(() => {
                     dashboard.style.display = 'flex';
                     
-                    // Inicializar
                     renderCalendar();
                     renderSchedule();
                     updateOccupancy();
@@ -1314,18 +1679,15 @@
                         selectedDateDisplay.textContent = formatDateLong(state.currentDate);
                     }
                     
-                    // Iniciais do usuário
                     const initials = 'AD';
                     document.getElementById('user-initials').textContent = initials;
                     document.getElementById('display-user-name').textContent = 'Administrador';
                 }, 1000);
                 
-                // Navegação
                 document.querySelectorAll('[data-view]').forEach(el => {
                     el.addEventListener('click', () => navigateTo(el.dataset.view));
                 });
                 
-                // Botões do calendário
                 document.getElementById('prev-month')?.addEventListener('click', () => {
                     state.currentDate.setMonth(state.currentDate.getMonth() - 1);
                     renderCalendar();
@@ -1336,7 +1698,6 @@
                     renderCalendar();
                 });
                 
-                // Quick months
                 document.querySelectorAll('.quick-month').forEach(btn => {
                     btn.addEventListener('click', function() {
                         document.querySelectorAll('.quick-month').forEach(b => b.classList.remove('active'));
@@ -1345,13 +1706,12 @@
                         const meses = ['Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul'];
                         const monthIndex = meses.indexOf(this.textContent);
                         if (monthIndex !== -1) {
-                            state.currentDate.setMonth(monthIndex + 1); // Fevereiro é mês 1
+                            state.currentDate.setMonth(monthIndex + 1);
                             renderCalendar();
                         }
                     });
                 });
                 
-                // View toggle (mês/semana/dia)
                 document.querySelectorAll('[data-view-type]').forEach(btn => {
                     btn.addEventListener('click', function() {
                         document.querySelectorAll('[data-view-type]').forEach(b => b.classList.remove('active'));
@@ -1361,14 +1721,12 @@
                     });
                 });
                 
-                // Lab tabs
                 document.querySelectorAll('.lab-tab').forEach(btn => {
                     btn.addEventListener('click', function() {
                         document.querySelectorAll('.lab-tab').forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
                         state.currentLab = this.dataset.lab;
                         
-                        // Atualizar dados simulados
                         if (state.currentLab === 'Informática') {
                             state.slots = [
                                 { time: '07:20 - 08:10', prof: 'João Silva', turma: '3º A', status: 'reservado' },
@@ -1400,13 +1758,11 @@
                     });
                 });
                 
-                // Hoje
                 document.getElementById('today-btn')?.addEventListener('click', () => {
                     state.currentDate = new Date();
                     renderCalendar();
                 });
                 
-                // Fullscreen
                 document.getElementById('fullscreen-toggle')?.addEventListener('click', () => {
                     const calendar = document.getElementById('main-calendar');
                     if (calendar) {
@@ -1416,14 +1772,12 @@
                     }
                 });
                 
-                // Tema
                 document.getElementById('theme-toggle')?.addEventListener('click', () => {
                     document.body.classList.toggle('dark-theme');
                     const icon = document.getElementById('theme-icon');
                     icon.className = document.body.classList.contains('dark-theme') ? 'bi bi-sun' : 'bi bi-moon-stars';
                 });
                 
-                // Logout
                 document.getElementById('logout-btn')?.addEventListener('click', () => {
                     location.reload();
                 });
