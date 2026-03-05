@@ -1,162 +1,274 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEEP Comendador Miguel Gurgel | Sistema de Gestão Escolar</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="estilos/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Alocação de Laboratório</title>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #0f172a;
+    --secondary: #1e293b;
+    --accent: #3b82f6;
+    --light: #f1f5f9;
+    --white: #ffffff;
+    --transition: 0.3s ease;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; font-family: Inter, sans-serif; }
+
+body { background: var(--light); }
+
+/* LOGIN */
+#auth-screen {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+}
+
+.login-box {
+    background: var(--white);
+    padding:40px;
+    border-radius:16px;
+    width:320px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.login-box input {
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+.login-box button {
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    background:var(--accent);
+    color:white;
+    cursor:pointer;
+}
+
+/* APP */
+#app { display:none; padding:20px; }
+
+.lab-buttons {
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.lab-buttons button {
+    padding:10px 20px;
+    border:none;
+    border-radius:30px;
+    background:var(--primary);
+    color:white;
+    cursor:pointer;
+    transition:var(--transition);
+}
+
+.lab-buttons button.active {
+    background:var(--accent);
+}
+
+.view-toggle {
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.view-toggle button {
+    padding:8px 16px;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+    background:var(--primary);
+    color:white;
+}
+
+.view-toggle button.active {
+    background:var(--accent);
+}
+
+.table-container {
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    animation:fadeSlide 0.3s ease;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td {
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+th { background:var(--primary); color:white; }
+
+@keyframes fadeSlide {
+    from { opacity:0; transform:translateY(10px); }
+    to { opacity:1; transform:translateY(0); }
+}
+</style>
 </head>
 <body>
-    <div id="toast-container"></div>
 
-    <div id="auth-screen">
-        <div class="auth-container">
-            <div id="login-form">
-                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
-                <div class="school-logo-text" style="display: none;">EEEP Comendador Miguel Gurgel</div>
-                <h2 style="margin-bottom:24px;">Acesso ao Sistema</h2>
-                <div class="input-group">
-                    <input type="text" id="login-email" placeholder="E-mail ou Matrícula">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="login-pass" placeholder="Senha">
-                    <span class="password-toggle" onclick="togglePassword('login-pass')">👁️</span>
-                </div>
-                <button class="btn-auth" onclick="handleLogin()">Entrar</button>
-                <p class="auth-link">Novo por aqui? <a href="#" onclick="toggleAuth('signup')">Criar conta</a></p>
-            </div>
+<!-- LOGIN -->
+<div id="auth-screen">
+    <div class="login-box">
+        <h2>Login</h2>
+        <input type="text" id="user" placeholder="Usuário">
+        <input type="password" id="pass" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+    </div>
+</div>
 
-            <div id="signup-form" style="display: none;">
-                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
-                <div class="school-logo-text" style="display: none;">Cadastro</div>
-                <div class="input-group">
-                    <input type="text" id="reg-nome" placeholder="Nome Completo">
-                </div>
-                <div class="input-group">
-                    <input type="text" id="reg-matricula" placeholder="Número da Matrícula">
-                </div>
-                <div class="input-group">
-                    <select id="reg-cargo">
-                        <option value="Professor">Professor(a)</option>
-                        <option value="Coordenador">Coordenador(a)</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <input type="email" id="reg-email" placeholder="E-mail Institucional">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="reg-pass" placeholder="Senha (mín. 6 dígitos)" oninput="checkPasswordStrength(this.value)">
-                    <span class="password-toggle" onclick="togglePassword('reg-pass')">👁️</span>
-                </div>
-                <div class="password-strength">
-                    <div id="strength-bar" class="strength-bar"></div>
-                </div>
-                <button class="btn-auth" onclick="handleSignup()" style="margin-top:16px;">Finalizar Cadastro</button>
-                <p class="auth-link">Já tem conta? <a href="#" onclick="toggleAuth('login')">Fazer Login</a></p>
-            </div>
-        </div>
+<!-- SISTEMA -->
+<div id="app">
+
+    <h1>Alocação de Laboratórios</h1>
+
+    <div class="lab-buttons">
+        <button onclick="changeLab('Lab 1', this)" class="active">Lab 1</button>
+        <button onclick="changeLab('Lab 2', this)">Lab 2</button>
+        <button onclick="changeLab('Lab 3', this)">Lab 3</button>
     </div>
 
-    <header id="sys-header" style="display: none;">
-        <div class="header-left">
-            <img src="imagens/brasao.png" alt="Brasão" class="header-brasao" onerror="this.style.display='none'">
-            <div class="header-brand">
-                EEEP Comendador Miguel Gurgel
-                <small>Sistema de Gestão Escolar</small>
-            </div>
-        </div>
-        <div class="header-actions">
-            <button class="dark-toggle" onclick="toggleDarkMode()" id="darkModeBtn">🌙</button>
-            <div class="user-info">
-                <span id="user-info"></span>
-                <button class="btn-logout" onclick="logout()">Sair</button>
-            </div>
-        </div>
-    </header>
+    <div class="view-toggle">
+        <button class="active" onclick="switchView('tabela', this)">Tabela</button>
+        <button onclick="switchView('calendario', this)">Calendário</button>
+    </div>
 
-    <main id="app-content" style="display: none;">
-        <div id="main-menu" class="section active">
-            <div class="welcome-box">
-                <h1>Bem-vindo, servidor!</h1>
-                <p style="opacity:0.7;">O que você deseja gerenciar hoje?</p>
-            </div>
-            <div class="menu-cards">
-                <div class="card" onclick="showSection('reservas')">
-                    <div class="card-icon">🏫</div>
-                    <h3>Alocação de Laboratórios</h3>
-                    <p>Controle de horários de Informática, Hardware e Multimídia.</p>
-                </div>
-                <div class="card" onclick="showSection('monitoria')">
-                    <div class="card-icon">📋</div>
-                    <h3>Escala de Monitoria</h3>
-                    <p>Gestão de postos de apoio e alunos monitores.</p>
-                </div>
-            </div>
-        </div>
+    <div class="table-container" id="tableView">
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Professor</th>
+                    <th>Turma</th>
+                </tr>
+            </thead>
+            <tbody id="reservasTable"></tbody>
+        </table>
+    </div>
 
-        <section id="sec-reservas" class="section">
-            <div class="module-header">
-                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
-                <div class="lab-selector">
-                    <button class="btn-lab active" onclick="changeLab('Lab Informática', this)">💻 Informática</button>
-                    <button class="btn-lab" onclick="changeLab('Lab Hardware', this)">🛠️ Hardware</button>
-                    <button class="btn-lab" onclick="changeLab('Lab Multimídia', this)">🎬 Multimídia</button>
-                </div>
-            </div>
+    <div id="calendarContainer" style="display:none; background:white; padding:20px; border-radius:12px;"></div>
 
-            <div class="filter-bar">
-                <select id="semanaSelect" onchange="renderTable()">
-                    <option value="1">Semana 1</option><option value="2">Semana 2</option>
-                    <option value="3">Semana 3</option><option value="4">Semana 4</option>
-                </select>
-                <select id="diaSelect" onchange="renderTable()">
-                    <option value="Segunda">Segunda-feira</option><option value="Terça">Terça-feira</option>
-                    <option value="Quarta">Quarta-feira</option><option value="Quinta">Quinta-feira</option>
-                    <option value="Sexta">Sexta-feira</option>
-                </select>
-                <button onclick="copyPreviousWeek()">📋 Copiar da semana anterior</button>
-                <button onclick="clearDay()">🧹 Limpar dia</button>
-            </div>
+</div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Horário</th>
-                            <th>Professor</th>
-                            <th>Turma</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-            </div>
-        </section>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-        <section id="sec-monitoria" class="section">
-            <div class="module-header">
-                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
-                <h2 style="color: var(--primary);">📋 Escala de Monitoria</h2>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Posto</th>
-                            <th>Aluno</th>
-                            <th>Turma</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBodyMonitoria"></tbody>
-                </table>
-            </div>
-        </section>
-    </main>
+<script>
+let currentLab = "Lab 1";
+let calendar;
+let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
 
-    <script src="scripts/index.js"></script>
+function login() {
+    document.getElementById("auth-screen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    renderTable();
+}
+
+function changeLab(lab, btn) {
+    currentLab = lab;
+    document.querySelectorAll(".lab-buttons button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    document.getElementById("tableView").classList.remove("table-container");
+    void document.getElementById("tableView").offsetWidth;
+    document.getElementById("tableView").classList.add("table-container");
+
+    renderTable();
+    if (calendar) calendar.refetchEvents();
+}
+
+function switchView(view, btn) {
+    document.querySelectorAll(".view-toggle button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    if (view === "tabela") {
+        document.getElementById("tableView").style.display = "block";
+        document.getElementById("calendarContainer").style.display = "none";
+    } else {
+        document.getElementById("tableView").style.display = "none";
+        document.getElementById("calendarContainer").style.display = "block";
+        initCalendar();
+    }
+}
+
+function renderTable() {
+    const tbody = document.getElementById("reservasTable");
+    tbody.innerHTML = "";
+
+    reservas
+        .filter(r => r.lab === currentLab)
+        .forEach(r => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${r.data}</td>
+                    <td>${r.professor}</td>
+                    <td>${r.turma}</td>
+                </tr>
+            `;
+        });
+}
+
+function initCalendar() {
+    if (calendar) return;
+
+    const container = document.getElementById("calendarContainer");
+
+    calendar = new FullCalendar.Calendar(container, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        height: 600,
+        events: function(fetchInfo, successCallback) {
+            const eventos = reservas
+                .filter(r => r.lab === currentLab)
+                .map(r => ({
+                    title: `${r.professor} (${r.turma})`,
+                    start: r.data
+                }));
+            successCallback(eventos);
+        },
+        dateClick: function(info) {
+            const professor = prompt("Professor:");
+            const turma = prompt("Turma:");
+
+            if (!professor || !turma) return;
+
+            const nova = {
+                lab: currentLab,
+                data: info.dateStr,
+                professor,
+                turma
+            };
+
+            reservas.push(nova);
+            localStorage.setItem("reservas", JSON.stringify(reservas));
+
+            renderTable();
+            calendar.refetchEvents();
+        }
+    });
+
+    calendar.render();
+}
+</script>
+
 </body>
 </html>
