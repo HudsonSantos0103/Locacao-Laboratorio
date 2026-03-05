@@ -8,7 +8,7 @@ O **Sistema de Gestão Escolar Integrado** é uma aplicação web completa volta
 
 Link: 
 
-https://hudsonsantos0103.github.io/Locacao-Laboratorio/
+https://locacao-laboratorio.vercel.app/
 
 
 ## 🚀 Funcionalidades
