@@ -1,274 +1,608 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Alocação de Laboratório</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EEEP Comendador Miguel Gurgel | Sistema de Gestão Escolar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== VARIÁVEIS E RESET ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
 
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+        :root {
+            --bg-light: #f8fafc;
+            --bg-dark: #0b1120;
+            --card-light: rgba(255, 255, 255, 0.8);
+            --card-dark: rgba(15, 23, 42, 0.9);
+            --primary: #0f172a;      /* Azul escuro */
+            --primary-light: #1e293b;
+            --accent: #f59e0b;       /* Dourado */
+            --accent-hover: #d97706;
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
+            --text-light: #1e293b;
+            --text-dark: #f1f5f9;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.2);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-<style>
-:root {
-    --primary: #0f172a;
-    --secondary: #1e293b;
-    --accent: #3b82f6;
-    --light: #f1f5f9;
-    --white: #ffffff;
-    --transition: 0.3s ease;
-}
+        body { background: var(--bg-light); color: var(--text-light); min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
+        body.dark { --bg-light: var(--bg-dark); --card-light: var(--card-dark); --border-light: var(--border-dark); --text-light: var(--text-dark); }
 
-* { margin:0; padding:0; box-sizing:border-box; font-family: Inter, sans-serif; }
+        /* ===== COMPONENTES GLOBAIS ===== */
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+        .toast { background: var(--primary); color: white; padding: 14px 20px; border-radius: 12px; font-weight: 500; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; min-width: 280px; max-width: 380px; animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; border-left: 5px solid var(--accent); backdrop-filter: blur(4px); }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--error); }
+        .toast.warning { border-left-color: var(--warning); }
 
-body { background: var(--light); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
 
-/* LOGIN */
-#auth-screen {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-}
+        /* ===== TELA DE AUTENTICAÇÃO ===== */
+        #auth-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(145deg, #e6f0fa 0%, #b0c8da 100%); padding: 16px; }
+        .auth-container { background: var(--card-light); backdrop-filter: blur(12px); padding: 40px; border-radius: 32px; width: 100%; max-width: 440px; box-shadow: var(--shadow-lg); border: 1px solid rgba(255, 255, 255, 0.3); text-align: center; }
+        .school-logo-img { max-width: 100%; height: auto; margin-bottom: 20px; }
+        .school-logo-text { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px; }
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group input, .input-group select { width: 100%; padding: 14px 16px; border: 2px solid transparent; border-radius: 16px; background: rgba(255, 255, 255, 0.7); font-size: 15px; transition: var(--transition); outline: none; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2); }
+        .password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--primary); font-size: 18px; }
+        .password-strength { height: 4px; background: #e2e8f0; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        .strength-bar { height: 100%; width: 0%; transition: width 0.3s; }
+        .strength-weak { background: var(--error); width: 33%; }
+        .strength-medium { background: var(--warning); width: 66%; }
+        .strength-strong { background: var(--success); width: 100%; }
+        .btn-auth { width: 100%; padding: 14px; border-radius: 40px; background: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; transition: var(--transition); }
+        .btn-auth:hover { background: var(--primary-light); transform: scale(1.02); }
+        .auth-link { text-align: center; margin-top: 20px; }
+        .auth-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .auth-link a:hover { text-decoration: underline; }
 
-.login-box {
-    background: var(--white);
-    padding:40px;
-    border-radius:16px;
-    width:320px;
-    text-align:center;
-    box-shadow:0 10px 30px rgba(0,0,0,0.2);
-}
+        /* ===== CABEÇALHO DO SISTEMA ===== */
+        #sys-header { background: rgba(15, 23, 42, 0.95); color: white; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-brasao { height: 48px; width: auto; filter: none; }
+        .header-brand { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; }
+        .header-brand small { font-size: 14px; font-weight: 400; opacity: 0.8; display: block; }
+        .header-actions { display: flex; align-items: center; gap: 24px; }
+        .dark-toggle { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 8px; border-radius: 50%; transition: var(--transition); }
+        .dark-toggle:hover { background: rgba(255, 255, 255, 0.1); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        .btn-logout { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 8px 16px; border-radius: 40px; cursor: pointer; transition: var(--transition); font-weight: 500; }
+        .btn-logout:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
 
-.login-box input {
-    width:100%;
-    padding:10px;
-    margin:10px 0;
-    border-radius:8px;
-    border:1px solid #ccc;
-}
+        /* ===== CONTEÚDO PRINCIPAL ===== */
+        #app-content { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .section { display: none; animation: fadeIn 0.4s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.login-box button {
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    background:var(--accent);
-    color:white;
-    cursor:pointer;
-}
+        /* ===== CARDS DO MENU ===== */
+        .welcome-box { text-align: center; margin: 40px 0 20px; }
+        .welcome-box h1 { font-size: 36px; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .menu-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; padding: 20px 0 60px; }
+        .card { background: var(--card-light); backdrop-filter: blur(10px); padding: 40px 24px; border-radius: 32px; cursor: pointer; text-align: center; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: var(--shadow); transition: var(--transition); }
+        .card:hover { transform: translateY(-8px) scale(1.02); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+        .card-icon { font-size: 64px; margin-bottom: 20px; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.1)); }
 
-/* APP */
-#app { display:none; padding:20px; }
+        /* ===== MÓDULOS ===== */
+        .module-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 30px; }
+        .lab-selector { display: flex; gap: 8px; background: rgba(0,0,0,0.05); padding: 6px; border-radius: 40px; }
+        .btn-lab { border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: 600; background: transparent; color: var(--text-light); transition: var(--transition); }
+        .btn-lab.active { background: var(--accent); color: white; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4); }
+        .filter-bar { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+        .filter-bar select, .filter-bar button { padding: 12px 20px; border-radius: 40px; border: 1px solid var(--border-light); background: var(--card-light); backdrop-filter: blur(4px); font-size: 14px; cursor: pointer; transition: var(--transition); }
+        .filter-bar button { background: var(--primary); color: white; border: none; display: inline-flex; align-items: center; gap: 8px; }
+        .filter-bar button:hover { background: var(--primary-light); transform: scale(1.02); }
+        .btn-back { background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 40px; cursor: pointer; font-weight: 500; transition: var(--transition); }
+        .btn-back:hover { background: var(--primary-light); transform: translateX(-4px); }
+        .btn-save { background: var(--success); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; transition: var(--transition); }
+        .btn-save:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-.lab-buttons {
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-}
+        /* ===== TABELAS CALENDÁRIO ===== */
+        .table-container { background: var(--card-light); backdrop-filter: blur(8px); border-radius: 24px; border: 1px solid var(--border-light); overflow-x: auto; box-shadow: var(--shadow); transition: opacity 0.3s ease; }
+        .table-container.fade-out { opacity: 0; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { background: rgba(0,0,0,0.02); padding: 18px 8px; text-align: center; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary); border-bottom: 2px solid var(--accent); }
+        td { padding: 8px; border: 1px solid var(--border-light); text-align: center; vertical-align: middle; cursor: pointer; transition: background 0.2s; }
+        td:hover { background: rgba(245, 158, 11, 0.1); }
+        .slot-time { font-weight: 600; background: rgba(0,0,0,0.02); }
+        .reserva-content { font-size: 13px; }
+        .reserva-prof { font-weight: 500; }
+        .reserva-turma { font-size: 11px; opacity: 0.7; }
+        .lunch-break-cal { background: rgba(245, 158, 11, 0.1); font-weight: 600; color: var(--accent); font-size: 12px; }
 
-.lab-buttons button {
-    padding:10px 20px;
-    border:none;
-    border-radius:30px;
-    background:var(--primary);
-    color:white;
-    cursor:pointer;
-    transition:var(--transition);
-}
+        /* ===== MODAL ===== */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card-light); backdrop-filter: blur(20px); padding: 30px; border-radius: 32px; max-width: 400px; width: 90%; box-shadow: var(--shadow-lg); }
+        .modal-content h3 { margin-bottom: 20px; color: var(--primary); }
+        .modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid transparent; border-radius: 16px; background: rgba(255,255,255,0.7); font-size: 15px; }
+        .modal-input:focus { border-color: var(--accent); outline: none; background: white; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .modal-btn { padding: 10px 20px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; }
+        .modal-btn.save { background: var(--success); color: white; }
+        .modal-btn.cancel { background: #e2e8f0; color: var(--text-light); }
 
-.lab-buttons button.active {
-    background:var(--accent);
-}
+        /* ===== DARK MODE AJUSTES ===== */
+        body.dark .card, body.dark .auth-container, body.dark .table-container, body.dark .filter-bar select, body.dark .modal-content { background: rgba(15, 23, 42, 0.9); border-color: #334155; }
+        body.dark td input { background: #1e293b; color: white; border-color: #334155; }
+        body.dark td input:focus { border-color: var(--accent); background: #0f172a; }
+        body.dark .header-brasao { filter: none; }
+        body.dark .modal-input { background: #1e293b; color: white; }
 
-.view-toggle {
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-}
-
-.view-toggle button {
-    padding:8px 16px;
-    border:none;
-    border-radius:20px;
-    cursor:pointer;
-    background:var(--primary);
-    color:white;
-}
-
-.view-toggle button.active {
-    background:var(--accent);
-}
-
-.table-container {
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    animation:fadeSlide 0.3s ease;
-}
-
-table {
-    width:100%;
-    border-collapse:collapse;
-}
-
-th, td {
-    border:1px solid #ddd;
-    padding:8px;
-    text-align:center;
-}
-
-th { background:var(--primary); color:white; }
-
-@keyframes fadeSlide {
-    from { opacity:0; transform:translateY(10px); }
-    to { opacity:1; transform:translateY(0); }
-}
-</style>
+        @media (max-width: 768px) {
+            .module-header { flex-direction: column; align-items: flex-start; }
+            .header-brand { font-size: 16px; }
+            .header-brasao { height: 36px; }
+        }
+    </style>
 </head>
 <body>
+    <div id="toast-container"></div>
 
-<!-- LOGIN -->
-<div id="auth-screen">
-    <div class="login-box">
-        <h2>Login</h2>
-        <input type="text" id="user" placeholder="Usuário">
-        <input type="password" id="pass" placeholder="Senha">
-        <button onclick="login()">Entrar</button>
-    </div>
-</div>
-
-<!-- SISTEMA -->
-<div id="app">
-
-    <h1>Alocação de Laboratórios</h1>
-
-    <div class="lab-buttons">
-        <button onclick="changeLab('Lab 1', this)" class="active">Lab 1</button>
-        <button onclick="changeLab('Lab 2', this)">Lab 2</button>
-        <button onclick="changeLab('Lab 3', this)">Lab 3</button>
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Editar Reserva</h3>
+            <input type="text" id="modalProf" class="modal-input" placeholder="Professor">
+            <input type="text" id="modalTurma" class="modal-input" placeholder="Turma">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+                <button class="modal-btn save" onclick="saveModal()">Salvar</button>
+            </div>
+        </div>
     </div>
 
-    <div class="view-toggle">
-        <button class="active" onclick="switchView('tabela', this)">Tabela</button>
-        <button onclick="switchView('calendario', this)">Calendário</button>
+    <div id="auth-screen">
+        <div class="auth-container">
+            <div id="login-form">
+                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
+                <div class="school-logo-text" style="display: none;">EEEP Comendador Miguel Gurgel</div>
+                <h2 style="margin-bottom:24px;">Acesso ao Sistema</h2>
+                <div class="input-group">
+                    <input type="text" id="login-email" placeholder="E-mail ou Matrícula">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-pass" placeholder="Senha">
+                    <span class="password-toggle" onclick="togglePassword('login-pass')">👁️</span>
+                </div>
+                <button class="btn-auth" onclick="handleLogin()">Entrar</button>
+                <p class="auth-link">Novo por aqui? <a href="#" onclick="toggleAuth('signup')">Criar conta</a></p>
+            </div>
+
+            <div id="signup-form" style="display: none;">
+                <img src="imagens/logo-horizontal.png" alt="EEEP Comendador Miguel Gurgel" class="school-logo-img" onerror="this.style.display='none'">
+                <div class="school-logo-text" style="display: none;">Cadastro</div>
+                <div class="input-group">
+                    <input type="text" id="reg-nome" placeholder="Nome Completo">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="reg-matricula" placeholder="Número da Matrícula">
+                </div>
+                <div class="input-group">
+                    <select id="reg-cargo">
+                        <option value="Professor">Professor(a)</option>
+                        <option value="Coordenador">Coordenador(a)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="reg-email" placeholder="E-mail Institucional">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="reg-pass" placeholder="Senha (mín. 6 dígitos)" oninput="checkPasswordStrength(this.value)">
+                    <span class="password-toggle" onclick="togglePassword('reg-pass')">👁️</span>
+                </div>
+                <div class="password-strength">
+                    <div id="strength-bar" class="strength-bar"></div>
+                </div>
+                <button class="btn-auth" onclick="handleSignup()" style="margin-top:16px;">Finalizar Cadastro</button>
+                <p class="auth-link">Já tem conta? <a href="#" onclick="toggleAuth('login')">Fazer Login</a></p>
+            </div>
+        </div>
     </div>
 
-    <div class="table-container" id="tableView">
-        <table>
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Professor</th>
-                    <th>Turma</th>
-                </tr>
-            </thead>
-            <tbody id="reservasTable"></tbody>
-        </table>
-    </div>
+    <header id="sys-header" style="display: none;">
+        <div class="header-left">
+            <img src="imagens/brasao.png" alt="Brasão" class="header-brasao" onerror="this.style.display='none'">
+            <div class="header-brand">
+                EEEP Comendador Miguel Gurgel
+                <small>Sistema de Gestão Escolar</small>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="dark-toggle" onclick="toggleDarkMode()" id="darkModeBtn">🌙</button>
+            <div class="user-info">
+                <span id="user-info"></span>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </div>
+        </div>
+    </header>
 
-    <div id="calendarContainer" style="display:none; background:white; padding:20px; border-radius:12px;"></div>
+    <main id="app-content" style="display: none;">
+        <div id="main-menu" class="section active">
+            <div class="welcome-box">
+                <h1>Bem-vindo, servidor!</h1>
+                <p style="opacity:0.7;">O que você deseja gerenciar hoje?</p>
+            </div>
+            <div class="menu-cards">
+                <div class="card" onclick="showSection('reservas')">
+                    <div class="card-icon">🏫</div>
+                    <h3>Alocação de Laboratórios</h3>
+                    <p>Controle de horários de Informática, Hardware e Multimídia.</p>
+                </div>
+                <div class="card" onclick="showSection('monitoria')">
+                    <div class="card-icon">📋</div>
+                    <h3>Escala de Monitoria</h3>
+                    <p>Gestão de postos de apoio e alunos monitores.</p>
+                </div>
+            </div>
+        </div>
 
-</div>
+        <section id="sec-reservas" class="section">
+            <div class="module-header">
+                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
+                <div class="lab-selector">
+                    <button class="btn-lab active" onclick="changeLab('Lab Informática', this)">💻 Informática</button>
+                    <button class="btn-lab" onclick="changeLab('Lab Hardware', this)">🛠️ Hardware</button>
+                    <button class="btn-lab" onclick="changeLab('Lab Multimídia', this)">🎬 Multimídia</button>
+                </div>
+            </div>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+            <div class="filter-bar">
+                <select id="semanaSelectReservas" onchange="renderLabCalendar()">
+                    <option value="1">Semana 1</option><option value="2">Semana 2</option>
+                    <option value="3">Semana 3</option><option value="4">Semana 4</option>
+                </select>
+                <button onclick="copyPreviousWeekLab()">📋 Copiar da semana anterior</button>
+                <button onclick="clearWeekLab()">🧹 Limpar semana</button>
+            </div>
 
-<script>
-let currentLab = "Lab 1";
-let calendar;
-let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+            <div id="labCalendarContainer" class="table-container">
+                <!-- Tabela será gerada dinamicamente -->
+            </div>
+        </section>
 
-function login() {
-    document.getElementById("auth-screen").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    renderTable();
-}
+        <section id="sec-monitoria" class="section">
+            <div class="module-header">
+                <button class="btn-back" onclick="showSection('menu')">← Voltar ao Menu</button>
+                <h2 style="color: var(--primary);">📋 Escala de Monitoria</h2>
+            </div>
+            <div class="filter-bar">
+                <select id="semanaSelectMonitoria" onchange="renderMonCalendar()">
+                    <option value="1">Semana 1</option><option value="2">Semana 2</option>
+                    <option value="3">Semana 3</option><option value="4">Semana 4</option>
+                </select>
+                <button onclick="copyPreviousWeekMon()">📋 Copiar da semana anterior</button>
+                <button onclick="clearWeekMon()">🧹 Limpar semana</button>
+            </div>
+            <div id="monCalendarContainer" class="table-container">
+                <!-- Tabela será gerada dinamicamente -->
+            </div>
+        </section>
+    </main>
 
-function changeLab(lab, btn) {
-    currentLab = lab;
-    document.querySelectorAll(".lab-buttons button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+    <script>
+        // ==================== CONFIGURAÇÕES ====================
+        const CONFIG = {
+            slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
+            diasSemana: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"],
+            postosMonitoria: ["Fila do Intervalo", "Refeitório (Suco)", "Refeitório (Pratos)", "Portaria Almoço", "Pátio Central", "Fila Almoço"],
+            turmasValidas: ["DS1", "DS2", "DS3", "MULTI1", "MULTI2", "MULTI3", "CTB1", "CTB2", "CTB3", "RDC1", "RDC2", "RDC3"]
+        };
 
-    document.getElementById("tableView").classList.remove("table-container");
-    void document.getElementById("tableView").offsetWidth;
-    document.getElementById("tableView").classList.add("table-container");
+        let currentLab = "Lab Informática";
+        let currentEditCell = null; // Para o modal
 
-    renderTable();
-    if (calendar) calendar.refetchEvents();
-}
+        // ==================== UTILITÁRIOS ====================
+        const storage = {
+            set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+            get: (key) => JSON.parse(localStorage.getItem(key))
+        };
 
-function switchView(view, btn) {
-    document.querySelectorAll(".view-toggle button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-
-    if (view === "tabela") {
-        document.getElementById("tableView").style.display = "block";
-        document.getElementById("calendarContainer").style.display = "none";
-    } else {
-        document.getElementById("tableView").style.display = "none";
-        document.getElementById("calendarContainer").style.display = "block";
-        initCalendar();
-    }
-}
-
-function renderTable() {
-    const tbody = document.getElementById("reservasTable");
-    tbody.innerHTML = "";
-
-    reservas
-        .filter(r => r.lab === currentLab)
-        .forEach(r => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${r.data}</td>
-                    <td>${r.professor}</td>
-                    <td>${r.turma}</td>
-                </tr>
-            `;
-        });
-}
-
-function initCalendar() {
-    if (calendar) return;
-
-    const container = document.getElementById("calendarContainer");
-
-    calendar = new FullCalendar.Calendar(container, {
-        initialView: 'dayGridMonth',
-        locale: 'pt-br',
-        height: 600,
-        events: function(fetchInfo, successCallback) {
-            const eventos = reservas
-                .filter(r => r.lab === currentLab)
-                .map(r => ({
-                    title: `${r.professor} (${r.turma})`,
-                    start: r.data
-                }));
-            successCallback(eventos);
-        },
-        dateClick: function(info) {
-            const professor = prompt("Professor:");
-            const turma = prompt("Turma:");
-
-            if (!professor || !turma) return;
-
-            const nova = {
-                lab: currentLab,
-                data: info.dateStr,
-                professor,
-                turma
-            };
-
-            reservas.push(nova);
-            localStorage.setItem("reservas", JSON.stringify(reservas));
-
-            renderTable();
-            calendar.refetchEvents();
+        function showToast(msg, type = 'info') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerText = msg;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
         }
-    });
 
-    calendar.render();
-}
-</script>
+        // ==================== AUTENTICAÇÃO ====================
+        function toggleAuth(type) {
+            document.getElementById('login-form').style.display = type === 'signup' ? 'none' : 'block';
+            document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
+        }
 
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function checkPasswordStrength(val) {
+            const bar = document.getElementById('strength-bar');
+            if(val.length === 0) { bar.className = 'strength-bar'; }
+            else if(val.length < 6) { bar.className = 'strength-bar strength-weak'; }
+            else if(val.length < 8) { bar.className = 'strength-bar strength-medium'; }
+            else { bar.className = 'strength-bar strength-strong'; }
+        }
+
+        function handleSignup() {
+            const email = document.getElementById('reg-email').value.toLowerCase().trim();
+            const user = { nome: document.getElementById('reg-nome').value, pass: document.getElementById('reg-pass').value, cargo: document.getElementById('reg-cargo').value };
+            if(!email || user.pass.length < 6) return showToast("Dados inválidos ou senha curta!", 'error');
+            storage.set(`user-${email}`, user);
+            showToast("✅ Cadastro realizado!", 'success');
+            toggleAuth('login');
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('login-email').value.toLowerCase().trim();
+            const pass = document.getElementById('login-pass').value;
+            const saved = storage.get(`user-${email}`);
+
+            if (saved && saved.pass === pass) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('sys-header').style.display = 'flex';
+                document.getElementById('app-content').style.display = 'block';
+                document.getElementById('user-info').innerText = `${saved.cargo}: ${saved.nome}`;
+                showSection('menu');
+                showToast("Bem-vindo!", 'success');
+            } else {
+                showToast("❌ E-mail ou senha incorretos.", 'error');
+            }
+        }
+
+        function logout() { location.reload(); }
+
+        // ==================== NAVEGAÇÃO E MODO ESCURO ====================
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            if (id === 'menu') {
+                document.getElementById('main-menu').classList.add('active');
+            } else {
+                document.getElementById(`sec-${id}`).classList.add('active');
+                if (id === 'reservas') renderLabCalendar();
+                if (id === 'monitoria') renderMonCalendar();
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            const btn = document.getElementById('darkModeBtn');
+            btn.innerText = document.body.classList.contains('dark') ? '☀️' : '🌙';
+        }
+
+        // ==================== LABORATÓRIOS - CALENDÁRIO SEMANAL ====================
+        function changeLab(lab, btn) {
+            currentLab = lab;
+            document.querySelectorAll('.btn-lab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // Animação: fade out e in
+            const container = document.getElementById('labCalendarContainer');
+            container.classList.add('fade-out');
+            setTimeout(() => {
+                renderLabCalendar();
+                container.classList.remove('fade-out');
+            }, 200);
+        }
+
+        function renderLabCalendar() {
+            const semana = document.getElementById('semanaSelectReservas').value;
+            const container = document.getElementById('labCalendarContainer');
+            let html = '<table><thead><tr><th>Horário</th>';
+
+            // Cabeçalho com os dias
+            CONFIG.diasSemana.forEach(dia => {
+                html += `<th>${dia}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            // Linhas de horários
+            CONFIG.slots.forEach(slot => {
+                const isLunch = slot.includes("12:00");
+                html += '<tr>';
+                html += `<td class="slot-time">${slot}</td>`;
+
+                if (isLunch) {
+                    // Intervalo de almoço ocupa todas as colunas de dias
+                    html += `<td colspan="5" class="lunch-break-cal">🍱 INTERVALO DE ALMOÇO</td>`;
+                } else {
+                    CONFIG.diasSemana.forEach(dia => {
+                        const key = `res-${currentLab}-S${semana}-${dia}-${slot}`;
+                        const saved = storage.get(key) || { prof: '', turma: '' };
+                        html += `<td onclick="openEditModal(this, '${currentLab}', '${semana}', '${dia}', '${slot}')">`;
+                        if (saved.prof || saved.turma) {
+                            html += `<div class="reserva-content"><span class="reserva-prof">${saved.prof}</span> <span class="reserva-turma">${saved.turma}</span></div>`;
+                        } else {
+                            html += `<span style="opacity:0.4;">—</span>`;
+                        }
+                        html += '</td>';
+                    });
+                }
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Modal
+        function openEditModal(cell, lab, semana, dia, slot) {
+            currentEditCell = { cell, lab, semana, dia, slot };
+            const key = `res-${lab}-S${semana}-${dia}-${slot}`;
+            const saved = storage.get(key) || { prof: '', turma: '' };
+            document.getElementById('modalProf').value = saved.prof;
+            document.getElementById('modalTurma').value = saved.turma;
+            document.getElementById('modalTitle').innerText = `Editar - ${dia} ${slot}`;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditCell = null;
+        }
+
+        function saveModal() {
+            if (!currentEditCell) return;
+            const { lab, semana, dia, slot } = currentEditCell;
+            const prof = document.getElementById('modalProf').value.trim();
+            const turma = document.getElementById('modalTurma').value.trim().toUpperCase();
+            const key = `res-${lab}-S${semana}-${dia}-${slot}`;
+            storage.set(key, { prof, turma });
+            // Atualizar célula visualmente
+            if (currentEditCell.cell) {
+                if (prof || turma) {
+                    currentEditCell.cell.innerHTML = `<div class="reserva-content"><span class="reserva-prof">${prof}</span> <span class="reserva-turma">${turma}</span></div>`;
+                } else {
+                    currentEditCell.cell.innerHTML = `<span style="opacity:0.4;">—</span>`;
+                }
+            }
+            closeModal();
+            showToast('Reserva salva!', 'success');
+        }
+
+        function copyPreviousWeekLab() {
+            const sem = parseInt(document.getElementById('semanaSelectReservas').value);
+            if(sem === 1) return showToast("⚠️ Não há semana anterior para copiar!", 'warning');
+            const dias = CONFIG.diasSemana;
+            dias.forEach(dia => {
+                CONFIG.slots.forEach(slot => {
+                    const prevKey = `res-${currentLab}-S${sem-1}-${dia}-${slot}`;
+                    const currKey = `res-${currentLab}-S${sem}-${dia}-${slot}`;
+                    const saved = storage.get(prevKey);
+                    if(saved) storage.set(currKey, saved);
+                });
+            });
+            renderLabCalendar();
+            showToast("✅ Dados copiados da semana " + (sem-1), 'success');
+        }
+
+        function clearWeekLab() {
+            if(!confirm("Tem certeza que deseja limpar todas as reservas desta semana?")) return;
+            const sem = document.getElementById('semanaSelectReservas').value;
+            const dias = CONFIG.diasSemana;
+            dias.forEach(dia => {
+                CONFIG.slots.forEach(slot => {
+                    localStorage.removeItem(`res-${currentLab}-S${sem}-${dia}-${slot}`);
+                });
+            });
+            renderLabCalendar();
+            showToast("🧹 Semana limpa!", 'success');
+        }
+
+        // ==================== MONITORIA - CALENDÁRIO SEMANAL ====================
+        function renderMonCalendar() {
+            const semana = document.getElementById('semanaSelectMonitoria').value;
+            const container = document.getElementById('monCalendarContainer');
+            let html = '<table><thead><tr><th>Posto</th>';
+
+            CONFIG.diasSemana.forEach(dia => {
+                html += `<th>${dia}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            CONFIG.postosMonitoria.forEach(posto => {
+                html += '<tr>';
+                html += `<td class="slot-time">${posto}</td>`;
+                CONFIG.diasSemana.forEach(dia => {
+                    const key = `mon-${posto}-S${semana}-${dia}`;
+                    const saved = storage.get(key) || { aluno: '', turma: '' };
+                    html += `<td onclick="openEditModalMon(this, '${posto}', '${semana}', '${dia}')">`;
+                    if (saved.aluno || saved.turma) {
+                        html += `<div class="reserva-content"><span class="reserva-prof">${saved.aluno}</span> <span class="reserva-turma">${saved.turma}</span></div>`;
+                    } else {
+                        html += `<span style="opacity:0.4;">—</span>`;
+                    }
+                    html += '</td>';
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function openEditModalMon(cell, posto, semana, dia) {
+            currentEditCell = { cell, posto, semana, dia };
+            const key = `mon-${posto}-S${semana}-${dia}`;
+            const saved = storage.get(key) || { aluno: '', turma: '' };
+            document.getElementById('modalProf').value = saved.aluno; // Reutilizando o campo professor para aluno
+            document.getElementById('modalTurma').value = saved.turma;
+            document.getElementById('modalTitle').innerText = `Editar Monitor - ${posto} (${dia})`;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function saveModalMon() {
+            if (!currentEditCell) return;
+            const { posto, semana, dia } = currentEditCell;
+            const aluno = document.getElementById('modalProf').value.trim();
+            const turma = document.getElementById('modalTurma').value.trim().toUpperCase();
+            const key = `mon-${posto}-S${semana}-${dia}`;
+            storage.set(key, { aluno, turma });
+            if (currentEditCell.cell) {
+                if (aluno || turma) {
+                    currentEditCell.cell.innerHTML = `<div class="reserva-content"><span class="reserva-prof">${aluno}</span> <span class="reserva-turma">${turma}</span></div>`;
+                } else {
+                    currentEditCell.cell.innerHTML = `<span style="opacity:0.4;">—</span>`;
+                }
+            }
+            closeModal();
+            showToast('Escala salva!', 'success');
+        }
+
+        // Sobrescreve saveModal para tratar monitoria
+        const originalSaveModal = saveModal;
+        window.saveModal = function() {
+            if (currentEditCell && currentEditCell.hasOwnProperty('posto')) {
+                saveModalMon();
+            } else {
+                originalSaveModal();
+            }
+        };
+
+        function copyPreviousWeekMon() {
+            const sem = parseInt(document.getElementById('semanaSelectMonitoria').value);
+            if(sem === 1) return showToast("⚠️ Não há semana anterior para copiar!", 'warning');
+            const dias = CONFIG.diasSemana;
+            CONFIG.postosMonitoria.forEach(posto => {
+                dias.forEach(dia => {
+                    CONFIG.slots.forEach(slot => {
+                        const prevKey = `mon-${posto}-S${sem-1}-${dia}`;
+                        const currKey = `mon-${posto}-S${sem}-${dia}`;
+                        const saved = storage.get(prevKey);
+                        if(saved) storage.set(currKey, saved);
+                    });
+                });
+            });
+            renderMonCalendar();
+            showToast("✅ Dados copiados da semana " + (sem-1), 'success');
+        }
+
+        function clearWeekMon() {
+            if(!confirm("Tem certeza que deseja limpar todas as escalas desta semana?")) return;
+            const sem = document.getElementById('semanaSelectMonitoria').value;
+            const dias = CONFIG.diasSemana;
+            CONFIG.postosMonitoria.forEach(posto => {
+                dias.forEach(dia => {
+                    localStorage.removeItem(`mon-${posto}-S${sem}-${dia}`);
+                });
+            });
+            renderMonCalendar();
+            showToast("🧹 Semana limpa!", 'success');
+        }
+
+        // Inicialização
+        window.onload = function() {
+            // Se já estiver logado (por exemplo, se o usuário não deslogou), podemos verificar se há user salvo?
+            // Por simplicidade, mantemos a tela de login sempre visível até login.
+        };
+    </script>
 </body>
 </html>
