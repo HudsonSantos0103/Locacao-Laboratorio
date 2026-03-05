@@ -30,31 +30,97 @@ body.dark { --bg-light: var(--bg-dark); --card-light: var(--card-dark); --border
 /* ===== TOAST NOTIFICAÇÕES ===== */
 #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
 .toast { background: var(--primary); color: white; padding: 14px 20px; border-radius: 12px; font-weight: 500; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; min-width: 280px; animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; border-left: 5px solid var(--accent); }
+
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
 
-/* ===== TELA DE AUTENTICAÇÃO ATUALIZADA ===== */
+/* ===== NOVA TELA DE AUTENTICAÇÃO (GLASSMORPHISM) ===== */
 #auth-screen { 
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0b1120 100%); /* Fundo corporativo escuro */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    padding: 16px;
+    background-color: #f0f4f8;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.15) 0px, transparent 50%), 
+        radial-gradient(at 100% 0%, rgba(15, 23, 42, 0.1) 0px, transparent 50%);
 }
-.auth-container { background: #ffffff; padding: 40px; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; }
-.school-logo-img { max-width: 80%; height: auto; margin-bottom: 20px; }
-.auth-container h2 { color: #0f172a; font-weight: 700; }
+
+.auth-container { 
+    background: rgba(255, 255, 255, 0.8); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    padding: 48px 40px; 
+    border-radius: 28px; 
+    width: 100%; 
+    max-width: 420px; 
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    text-align: center; 
+}
+
+.school-logo-img { 
+    max-width: 70%; 
+    height: auto; 
+    margin-bottom: 30px;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+}
+
+.auth-container h2 { 
+    color: #1e293b; 
+    font-weight: 800; 
+    font-size: 24px;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+}
+
 .input-group { position: relative; margin-bottom: 20px; text-align: left; }
-.input-group input, .input-group select { width: 100%; padding: 14px 16px; border: 1px solid #cbd5e1; border-radius: 12px; background: #f8fafc; font-size: 15px; transition: var(--transition); outline: none; color: #0f172a; }
-.input-group input:focus, .input-group select:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1); }
+
+.input-group input, .input-group select { 
+    width: 100%; 
+    padding: 16px; 
+    border: 1px solid #e2e8f0; 
+    border-radius: 14px; 
+    background: #ffffff; 
+    font-size: 15px; 
+    transition: var(--transition); 
+    outline: none; 
+    color: #334155; 
+}
+
+.input-group input:focus, .input-group select:focus { 
+    border-color: var(--accent); 
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+    transform: translateY(-1px);
+}
+
 .password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; font-size: 18px; }
-.password-strength { height: 4px; background: #e2e8f0; border-radius: 4px; margin-top: 8px; overflow: hidden; }
-.strength-bar { height: 100%; width: 0%; transition: width 0.3s; }
-.strength-weak { background: var(--error); width: 33%; }
-.strength-medium { background: var(--warning); width: 66%; }
-.strength-strong { background: var(--success); width: 100%; }
-.btn-auth { width: 100%; padding: 14px; border-radius: 12px; background: var(--primary); color: white; border: none; font-weight: 600; font-size: 16px; cursor: pointer; transition: var(--transition); }
-.btn-auth:hover { background: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
-.auth-link { text-align: center; margin-top: 20px; color: #475569; }
-.auth-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
-.auth-link a:hover { text-decoration: underline; }
+
+.btn-auth { 
+    width: 100%; 
+    padding: 16px; 
+    border-radius: 14px; 
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%); 
+    color: white; 
+    border: none; 
+    font-weight: 700; 
+    font-size: 16px; 
+    cursor: pointer; 
+    transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    margin-top: 10px;
+}
+
+.btn-auth:hover { 
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 15px rgba(245, 158, 11, 0.3); 
+}
+
+.auth-link { margin-top: 24px; color: #64748b; font-size: 14px; }
+.auth-link a { color: #0f172a; text-decoration: none; font-weight: 700; border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+.auth-link a:hover { color: var(--accent); }
 
 /* ===== CABEÇALHO ===== */
 #sys-header { background: var(--primary); color: white; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
@@ -103,7 +169,6 @@ body.dark { --bg-light: var(--bg-dark); --card-light: var(--card-dark); --border
 .calendar-table .time-col { width: 120px; text-align: center; vertical-align: middle; background: rgba(0,0,0,0.01); color: var(--text-light); font-size: 14px; }
 .lunch-break { background: repeating-linear-gradient(45deg, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0.05) 10px, rgba(245, 158, 11, 0.1) 10px, rgba(245, 158, 11, 0.1) 20px); text-align: center; vertical-align: middle !important; font-weight: 600; color: var(--accent); letter-spacing: 2px; }
 
-/* Células do Calendário */
 .calendar-cell { height: 100%; width: 100%; padding: 10px; cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
 .calendar-cell.empty { color: #94a3b8; font-size: 13px; font-weight: 500; }
 .calendar-cell.empty:hover { background: rgba(16, 185, 129, 0.1); color: var(--success); }
@@ -119,14 +184,12 @@ body.dark { --bg-light: var(--bg-dark); --card-light: var(--card-dark); --border
 .mon-header { background: var(--primary); color: white; padding: 16px; font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; }
 .mon-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .mon-body input { width: 100%; padding: 12px; border: 1px solid var(--border-light); border-radius: 8px; background: rgba(0,0,0,0.02); }
-.mon-body input:focus { border-color: var(--accent); outline: none; background: white; }
 
 /* ===== BOTOES GERAIS ===== */
 .btn-save { background: var(--success); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: var(--transition); }
 .btn-save:hover { background: #059669; transform: translateY(-2px); }
 .btn-cancel { background: var(--border-light); color: var(--text-light); border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 .btn-delete { background: #fee2e2; color: var(--error); border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-.btn-delete:hover { background: var(--error); color: white; }
 
 /* ===== MODAL DE RESERVA ===== */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: var(--transition); }
@@ -136,24 +199,26 @@ body.dark { --bg-light: var(--bg-dark); --card-light: var(--card-dark); --border
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .modal-header h3 { color: var(--primary); font-size: 20px; }
 .close-modal { font-size: 28px; cursor: pointer; color: #64748b; line-height: 1; }
-.close-modal:hover { color: var(--error); }
-.modal-actions { display: flex; gap: 12px; margin-top: 24px; }
 
-/* ===== DARK MODE ===== */
-body.dark .auth-container { background: var(--card-dark); border: 1px solid var(--border-dark); }
-body.dark .auth-container h2, body.dark .welcome-box h1 { color: white; }
-body.dark .input-group input, body.dark .input-group select { background: #0f172a; border-color: #334155; color: white; }
-body.dark .calendar-table th { background: rgba(255,255,255,0.05); color: #94a3b8; border-color: #334155; }
-body.dark .calendar-table td, body.dark .calendar-table th { border-color: #334155; }
-body.dark .calendar-cell.empty:hover { background: rgba(16, 185, 129, 0.15); }
-body.dark .calendar-cell.filled { background: rgba(255,255,255,0.05); }
-body.dark .calendar-cell.filled:hover { background: rgba(255,255,255,0.1); }
-body.dark .res-turma { color: #f8fafc; }
-body.dark .res-prof { color: #cbd5e1; }
-body.dark .mon-body input { background: #0f172a; border-color: #334155; color: white; }
+/* ===== DARK MODE COMPLEMENTS ===== */
+body.dark .auth-container { 
+    background: rgba(15, 23, 42, 0.8); 
+    border-color: rgba(255, 255, 255, 0.1); 
+}
+body.dark #auth-screen {
+    background-color: #020617;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.1) 0px, transparent 50%), 
+        radial-gradient(at 100% 0%, rgba(30, 41, 59, 0.3) 0px, transparent 50%);
+}
+body.dark .auth-container h2 { color: white; }
+body.dark .input-group input { background: rgba(0,0,0,0.2); border-color: #334155; color: white; }
+body.dark .auth-link { color: #94a3b8; }
+body.dark .auth-link a { color: #f8fafc; }
 
 @media (max-width: 768px) {
     .module-header { flex-direction: column; align-items: flex-start; }
     .header-brand { font-size: 16px; }
     .header-brasao { height: 36px; }
+    .auth-container { padding: 32px 24px; }
 }

@@ -1,5 +1,6 @@
 const CONFIG = {
     slots: ["07:20 - 08:10", "08:10 - 09:00", "09:20 - 10:10", "10:10 - 11:00", "11:00 - 11:50", "12:00 - 13:00", "13:10 - 14:00", "14:00 - 14:50", "15:10 - 16:00", "16:00 - 16:50"],
+    dias: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"],
     postosMonitoria: ["Fila do Intervalo", "Refeitório (Suco)", "Refeitório (Pratos)", "Portaria Almoço", "Pátio Central", "Fila Almoço"],
     turmasValidas: ["DS1", "DS2", "DS3", "MULTI1", "MULTI2", "MULTI3", "CTB1", "CTB2", "CTB3", "RDC1", "RDC2", "RDC3"]
 };
@@ -71,7 +72,7 @@ function showSection(id) {
         document.getElementById('main-menu').classList.add('active');
     } else {
         document.getElementById(`sec-${id}`).classList.add('active');
-        id === 'reservas' ? renderTable() : renderMonitoria();
+        id === 'reservas' ? renderCalendar() : renderMonitoria();
     }
 }
 
@@ -81,91 +82,151 @@ function toggleDarkMode() {
     btn.innerText = document.body.classList.contains('dark') ? '☀️' : '🌙';
 }
 
-// === MÓDULO LABORATÓRIOS ===
+// === MÓDULO LABORATÓRIOS (CALENDÁRIO) ===
 function changeLab(lab, btn) {
     currentLab = lab;
     document.querySelectorAll('.btn-lab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    renderTable();
+    renderCalendar();
 }
 
-function renderTable() {
-    const tbody = document.getElementById('tableBody');
+function renderCalendar() {
+    const tbody = document.getElementById('calendarBody');
     const sem = document.getElementById('semanaSelect').value;
-    const dia = document.getElementById('diaSelect').value;
     tbody.innerHTML = '';
 
-    CONFIG.slots.forEach((slot, i) => {
-        const isLunch = slot.includes("12:00");
-        const key = `res-${currentLab}-S${sem}-${dia}-${slot}`;
-        const saved = storage.get(key) || { prof: '', turma: '' };
-
+    CONFIG.slots.forEach(slot => {
         const row = document.createElement('tr');
+        const isLunch = slot.includes("12:00");
+
         if (isLunch) {
-            row.innerHTML = `<td colspan="4" class="lunch-break">🍱 INTERVALO DE ALMOÇO</td>`;
+            row.innerHTML = `<td class="time-col"><strong>${slot}</strong></td><td colspan="5" class="lunch-break">🍱 INTERVALO DE ALMOÇO</td>`;
         } else {
-            row.innerHTML = `
-                <td><strong>${slot}</strong></td>
-                <td><input type="text" id="p-${i}" value="${saved.prof}" placeholder="Nome do Professor"></td>
-                <td><input type="text" id="t-${i}" value="${saved.turma}" placeholder="Turma"></td>
-                <td><button class="btn-save" onclick="saveBooking('${slot}', ${i})">Salvar</button></td>
-            `;
+            let cellsHTML = `<td class="time-col"><strong>${slot}</strong></td>`;
+            
+            CONFIG.dias.forEach(dia => {
+                const key = `res-${currentLab}-S${sem}-${dia}-${slot}`;
+                const saved = storage.get(key);
+                
+                if (saved && saved.prof) {
+                    // Célula Preenchida
+                    cellsHTML += `
+                        <td class="calendar-cell filled" onclick="openModal('${dia}', '${slot}')">
+                            <div class="res-turma">${saved.turma}</div>
+                            <div class="res-prof">${saved.prof}</div>
+                        </td>`;
+                } else {
+                    // Célula Vazia
+                    cellsHTML += `
+                        <td class="calendar-cell empty" onclick="openModal('${dia}', '${slot}')">
+                            <span>+ Reservar</span>
+                        </td>`;
+                }
+            });
+            row.innerHTML = cellsHTML;
         }
         tbody.appendChild(row);
     });
-}
-
-function saveBooking(slot, i) {
-    const sem = document.getElementById('semanaSelect').value;
-    const dia = document.getElementById('diaSelect').value;
-    const data = { 
-        prof: document.getElementById(`p-${i}`).value, 
-        turma: document.getElementById(`t-${i}`).value.toUpperCase() 
-    };
-    storage.set(`res-${currentLab}-S${sem}-${dia}-${slot}`, data);
-    showToast("Salvo!");
 }
 
 function copyPreviousWeek() {
     const sem = parseInt(document.getElementById('semanaSelect').value);
     if(sem === 1) return showToast("⚠️ Não há semana anterior para copiar!");
     
-    const dia = document.getElementById('diaSelect').value;
     CONFIG.slots.forEach(slot => {
-        const prevKey = `res-${currentLab}-S${sem-1}-${dia}-${slot}`;
-        const currKey = `res-${currentLab}-S${sem}-${dia}-${slot}`;
-        const saved = storage.get(prevKey);
-        if(saved) storage.set(currKey, saved);
+        CONFIG.dias.forEach(dia => {
+            const prevKey = `res-${currentLab}-S${sem-1}-${dia}-${slot}`;
+            const currKey = `res-${currentLab}-S${sem}-${dia}-${slot}`;
+            const saved = storage.get(prevKey);
+            if(saved) storage.set(currKey, saved);
+        });
     });
-    renderTable();
+    renderCalendar();
     showToast("✅ Dados copiados da semana " + (sem-1));
 }
 
-function clearDay() {
-    if(!confirm("Tem certeza que deseja limpar as reservas deste dia?")) return;
+function clearWeek() {
+    if(!confirm("Tem certeza que deseja limpar TODAS as reservas desta semana para este laboratório?")) return;
     const sem = document.getElementById('semanaSelect').value;
-    const dia = document.getElementById('diaSelect').value;
+    
     CONFIG.slots.forEach(slot => {
-        localStorage.removeItem(`res-${currentLab}-S${sem}-${dia}-${slot}`);
+        CONFIG.dias.forEach(dia => {
+            localStorage.removeItem(`res-${currentLab}-S${sem}-${dia}-${slot}`);
+        });
     });
-    renderTable();
-    showToast("🧹 Dia limpo!");
+    renderCalendar();
+    showToast("🧹 Semana limpa!");
 }
 
-// === MÓDULO MONITORIA ===
+// === MODAL DE RESERVAS ===
+function openModal(dia, slot) {
+    const sem = document.getElementById('semanaSelect').value;
+    const key = `res-${currentLab}-S${sem}-${dia}-${slot}`;
+    const saved = storage.get(key) || { prof: '', turma: '' };
+
+    document.getElementById('modal-dia').value = dia;
+    document.getElementById('modal-slot').value = slot;
+    document.getElementById('modal-prof').value = saved.prof;
+    document.getElementById('modal-turma').value = saved.turma;
+    
+    document.getElementById('modal-title').innerText = saved.prof ? "Editar Reserva" : "Nova Reserva";
+    document.getElementById('modal-subtitle').innerText = `${currentLab} | Semana ${sem} | ${dia} | ${slot}`;
+    
+    document.getElementById('btn-delete-res').style.display = saved.prof ? 'block' : 'none';
+    
+    document.getElementById('res-modal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('res-modal').classList.remove('active');
+}
+
+function saveReservation() {
+    const sem = document.getElementById('semanaSelect').value;
+    const dia = document.getElementById('modal-dia').value;
+    const slot = document.getElementById('modal-slot').value;
+    
+    const prof = document.getElementById('modal-prof').value.trim();
+    const turma = document.getElementById('modal-turma').value.trim().toUpperCase();
+
+    if(!prof || !turma) return showToast("⚠️ Preencha Professor e Turma!");
+
+    storage.set(`res-${currentLab}-S${sem}-${dia}-${slot}`, { prof, turma });
+    closeModal();
+    renderCalendar();
+    showToast("✅ Reserva salva!");
+}
+
+function deleteReservation() {
+    if(!confirm("Deseja realmente excluir esta reserva?")) return;
+    const sem = document.getElementById('semanaSelect').value;
+    const dia = document.getElementById('modal-dia').value;
+    const slot = document.getElementById('modal-slot').value;
+    
+    localStorage.removeItem(`res-${currentLab}-S${sem}-${dia}-${slot}`);
+    closeModal();
+    renderCalendar();
+    showToast("🗑️ Reserva excluída!");
+}
+
+// === MÓDULO MONITORIA (CARDS) ===
 function renderMonitoria() {
-    const tbody = document.getElementById('tableBodyMonitoria');
-    tbody.innerHTML = '';
+    const grid = document.getElementById('monitoriaGrid');
+    grid.innerHTML = '';
+    
     CONFIG.postosMonitoria.forEach((posto, i) => {
         const saved = storage.get(`mon-${posto}`) || { aluno: '', turma: '' };
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><strong>${posto}</strong></td>
-            <td><input type="text" id="mn-${i}" value="${saved.aluno}" placeholder="Nome do Aluno"></td>
-            <td><input type="text" id="mt-${i}" value="${saved.turma}" placeholder="Turma"></td>
-            <td><button class="btn-save" onclick="saveMon('${posto}', ${i})">Salvar</button></td>
+        const card = document.createElement('div');
+        card.className = 'monitoria-card';
+        card.innerHTML = `
+            <div class="mon-header">📍 ${posto}</div>
+            <div class="mon-body">
+                <input type="text" id="mn-${i}" value="${saved.aluno}" placeholder="Nome do Aluno">
+                <input type="text" id="mt-${i}" value="${saved.turma}" placeholder="Turma">
+                <button class="btn-save" onclick="saveMon('${posto}', ${i})">Salvar Posto</button>
+            </div>
         `;
-        tbody.appendChild(row);
+        grid.appendChild(card);
     });
 }
 
